@@ -576,13 +576,22 @@
     <div class="login-logo">REJOV</div>
     <div class="login-sub">Admin Portal</div>
     <div class="login-heading">Dashboard Access</div>
-    <div class="login-hint">Enter your admin credentials to continue.</div>
+    <div class="login-hint">Select your profile and enter your password to continue.</div>
     <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
+
+    <!-- Doctor selector -->
     <div class="form-row">
+      <label class="form-label">Select Doctor</label>
+      <div id="doctor-select-btns" style="display:flex;flex-direction:column;gap:8px;margin-top:2px"></div>
+    </div>
+
+    <!-- Password (shown after doctor selected) -->
+    <div class="form-row" id="pass-row" style="display:none">
       <label class="form-label">Password</label>
       <input type="password" class="form-input pass-field" id="login-pass" placeholder="••••" onkeydown="if(event.key==='Enter')adminLogin()">
     </div>
-    <button class="btn-login" onclick="adminLogin()">Enter Dashboard</button>
+
+    <button class="btn-login" id="login-btn" onclick="adminLogin()" style="display:none">Enter Dashboard</button>
     <a class="login-back" href="index.html">← Return to Website</a>
   </div>
 </div>
@@ -595,6 +604,7 @@
     <div class="sidebar-logo">
       <div class="sidebar-logo-text">REJOV</div>
       <div class="sidebar-logo-sub">Admin Dashboard</div>
+      <div id="sidebar-doctor-name" style="font-size:10px;color:var(--champagne);margin-top:10px;letter-spacing:1px;opacity:0.8"></div>
     </div>
     <div class="sidebar-nav">
       <div class="sidebar-section">Main</div>
@@ -681,6 +691,7 @@
               <tr>
                 <th>Patient</th>
                 <th>Phone</th>
+                <th>Doctor</th>
                 <th>Service</th>
                 <th>Date &amp; Time</th>
                 <th>Status</th>
@@ -736,6 +747,7 @@
               <tr>
                 <th>Patient</th>
                 <th>Phone</th>
+                <th>Doctor</th>
                 <th>Service</th>
                 <th>Date</th>
                 <th>Time</th>
@@ -844,7 +856,7 @@
 // ── Global error guard — prevents JS errors from causing white screen ──
 window.onerror = function(msg, src, line, col, err) {
   console.warn('[REJOV Admin] JS error caught:', msg, 'at', src, line + ':' + col);
-  return false; // Don't suppress console, but prevent default error handling
+  return false;
 };
 window.addEventListener('unhandledrejection', function(e) {
   console.warn('[REJOV Admin] Unhandled promise rejection:', e.reason);
@@ -852,10 +864,34 @@ window.addEventListener('unhandledrejection', function(e) {
 });
 
 // ════════════════════════════════════════════════
+// DOCTORS CONFIG
+// ════════════════════════════════════════════════
+const DOCTORS_CONFIG = [
+  { id: 'dr-samar',    name: 'Dr. Samar Yehia',      password: '7777', role: 'superadmin' },
+  { id: 'dr-muhammed', name: 'Dr. Muhammed Darwish',  password: '123',  role: 'doctor' },
+  { id: 'dr-noha',     name: 'Dr. Noha Elsoudy',      password: '123',  role: 'doctor' },
+];
+
+// Currently logged-in doctor — set on login
+let currentDoctor = null;
+
+// ── Helper: get bookings visible to current doctor ──
+function visibleBookings() {
+  if (!currentDoctor) return [];
+  if (currentDoctor.role === 'superadmin') return bookings;
+  // Match on selectedDoctor field (new field) OR legacy name field for old bookings
+  return bookings.filter(b => {
+    const docField = (b.selectedDoctor || '').toLowerCase();
+    const docName  = currentDoctor.name.toLowerCase();
+    return docField.includes(docName.split(' ').pop()) || // match last name
+           docField === docName ||
+           docField.includes(currentDoctor.id.replace('dr-',''));
+  });
+}
+
+// ════════════════════════════════════════════════
 // DATA — services loaded live from Firestore
 // ════════════════════════════════════════════════
-
-// Default seed data — written to Firestore only if the collection is empty
 const SERVICES_SEED = [
   { _docId: 'diamond-lips',    id: 'diamond-lips',    cat: 'Lip Specialist',       name: 'Diamond Lips',    desc: 'Proprietary technique for naturally full, symmetrical lips.', duration: '45–60 min', price: 'From SAR 1,200', sortOrder: 1 },
   { _docId: 'cheek-filler',    id: 'cheek-filler',    cat: 'Facial Aesthetics',    name: 'Cheek Filler',    desc: 'Restore volume and enhance cheekbone definition.', duration: '30 min',     price: 'From SAR 1,000', sortOrder: 2 },
@@ -865,17 +901,12 @@ const SERVICES_SEED = [
   { _docId: 'full-face-design',id: 'full-face-design',cat: 'Facial Harmonization', name: 'Full Face Design',desc: 'Comprehensive assessment and multi-area treatment.', duration: '90 min',     price: 'From SAR 2,500', sortOrder: 6 },
 ];
 
-// Live in-memory array — kept in sync by Firestore onSnapshot
 let SERVICES = [];
-
-// ── Firebase init ────────────────────────────────
-// Config loaded from firebase-config.js (shared with index.html)
-
 let bookings = [];
 let db = null;
 let bookingsRef = null;
 let servicesRef = null;
-let firestoreReady = false; // becomes true after first snapshot
+let firestoreReady = false;
 
 try {
   if (typeof firebase !== 'undefined' && typeof FIREBASE_CONFIG !== 'undefined') {
@@ -884,33 +915,48 @@ try {
     bookingsRef = db.collection('bookings');
     servicesRef  = db.collection('services');
 
-    // ── Bookings real-time listener ──────────────────
+    // Bookings real-time listener
     bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
-      bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
+      bookings = snapshot.docs.map(doc => {
+        const d = doc.data();
+        return {
+          _docId: doc.id,
+          // Normalise both old and new field names
+          name:            d.patientName || d.name || '',
+          phone:           d.phone || '',
+          service:         d.selectedService || d.service || '',
+          selectedDoctor:  d.selectedDoctor || d.doctor || '',
+          date:            d.bookingDate ? d.bookingDate.split(' ')[0] : (d.date || ''),
+          time:            d.bookingDate ? d.bookingDate.split(' ').slice(1).join(' ') : (d.time || ''),
+          status:          d.status || 'pending',
+          notes:           d.notes || '',
+          createdAt:       d.createdAt || '',
+          // keep originals too
+          ...d,
+        };
+      });
       firestoreReady = true;
       const dash = document.getElementById('admin-dashboard');
-      if (dash && dash.classList.contains('active')) {
+      if (dash && dash.style.display !== 'none' && currentDoctor) {
         updateAdminStats();
         renderAdminAppointments();
         renderAdminPatients();
+        renderServiceChart();
       }
-    }, err => { console.warn('Firestore listener error (admin):', err); firestoreReady = true; });
+    }, err => { console.warn('Firestore bookings listener error:', err); firestoreReady = true; });
 
-    // ── Services real-time listener ──────────────────
+    // Services real-time listener
     servicesRef.orderBy('sortOrder', 'asc').onSnapshot(snapshot => {
       if (snapshot.empty) {
-        // First run — seed Firestore with default services
         const batch = db.batch();
         SERVICES_SEED.forEach(s => {
           const { _docId, ...data } = s;
           batch.set(servicesRef.doc(_docId), data);
         });
         batch.commit().catch(e => console.warn('Seed error:', e));
-        // onSnapshot will fire again with the seeded data
         return;
       }
       SERVICES = snapshot.docs.map(doc => ({ _docId: doc.id, id: doc.id, ...doc.data() }));
-      // Refresh services UI if panel is visible
       const grid = document.getElementById('services-admin-grid');
       if (grid) renderAdminServices();
       populateServiceFilter();
@@ -924,7 +970,6 @@ try {
   console.warn('Firebase init error (admin):', e);
   SERVICES = SERVICES_SEED.map(s => ({ ...s }));
 }
-// ─────────────────────────────────────────────────
 
 const AVAILABILITY = {
   0: [],
@@ -936,62 +981,103 @@ const AVAILABILITY = {
   6: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
 };
 
-const ADMIN_PASSWORD = '7777';
+// ════════════════════════════════════════════════
+// LOGIN — DOCTOR SELECTION
+// ════════════════════════════════════════════════
+let selectedDoctorId = null;
 
-// ════════════════════════════════════════════════
-// AUTH
-// ════════════════════════════════════════════════
+function buildDoctorButtons() {
+  const wrap = document.getElementById('doctor-select-btns');
+  if (!wrap) return;
+  wrap.innerHTML = DOCTORS_CONFIG.map(d => `
+    <button
+      id="docbtn-${d.id}"
+      onclick="selectDoctorLogin('${d.id}')"
+      style="width:100%;padding:12px 16px;border:1px solid var(--light-gray);background:var(--warm-white);
+             font-family:var(--font-body);font-size:13px;color:var(--text-dark);cursor:pointer;
+             text-align:left;transition:all 0.2s;letter-spacing:0.3px;display:flex;align-items:center;gap:10px">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--light-gray);flex-shrink:0;transition:background 0.2s" id="docbtn-dot-${d.id}"></span>
+      ${d.name}
+    </button>
+  `).join('');
+}
+
+function selectDoctorLogin(id) {
+  selectedDoctorId = id;
+  // Visual feedback
+  DOCTORS_CONFIG.forEach(d => {
+    const btn = document.getElementById('docbtn-' + d.id);
+    const dot = document.getElementById('docbtn-dot-' + d.id);
+    if (btn) btn.style.borderColor = d.id === id ? 'var(--gold)' : 'var(--light-gray)';
+    if (btn) btn.style.background = d.id === id ? 'rgba(184,150,90,0.06)' : 'var(--warm-white)';
+    if (dot) dot.style.background = d.id === id ? 'var(--gold)' : 'var(--light-gray)';
+  });
+  // Show password field
+  document.getElementById('pass-row').style.display = 'block';
+  document.getElementById('login-btn').style.display = 'block';
+  document.getElementById('login-error').style.display = 'none';
+  setTimeout(() => document.getElementById('login-pass').focus(), 50);
+}
+
 function adminLogin() {
-  const pass = document.getElementById('login-pass').value;
   const errEl = document.getElementById('login-error');
-  if (pass === ADMIN_PASSWORD) {
-    errEl.style.display = 'none';
-    document.getElementById('admin-login').style.display = 'none';
-    const dash = document.getElementById('admin-dashboard');
-    dash.classList.add('active');
-    if (window.innerWidth > 900) {
-      dash.style.display = 'grid';
-      dash.style.gridTemplateColumns = '250px 1fr';
-    } else {
-      dash.style.display = 'block';
-    }
-    document.getElementById('admin-date-display').textContent =
-      new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-    // Always render services/availability immediately (no Firestore dependency)
-    renderAdminServices();
-    renderAvailability();
-    populateServiceFilter();
-    if (firestoreReady) {
-      // Firestore data already loaded — render immediately
-      updateAdminStats();
-      renderAdminAppointments();
-      renderAdminPatients();
-    } else if (bookingsRef) {
-      // Firestore connected but first snapshot not yet received — show loader,
-      // the onSnapshot callback will re-render once data arrives
-      updateAdminStats();         // shows 0s while loading
-      renderAdminAppointments();  // shows empty state
-      renderAdminPatients();      // shows empty state
-    } else {
-      // Firebase unavailable — render with empty data
-      updateAdminStats();
-      renderAdminAppointments();
-      renderAdminPatients();
-    }
-  } else {
+  if (!selectedDoctorId) {
+    errEl.textContent = 'Please select a doctor first.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const doctor = DOCTORS_CONFIG.find(d => d.id === selectedDoctorId);
+  const pass = document.getElementById('login-pass').value;
+  if (!doctor || pass !== doctor.password) {
+    errEl.textContent = 'Incorrect password. Please try again.';
     errEl.style.display = 'block';
     document.getElementById('login-pass').value = '';
     document.getElementById('login-pass').focus();
+    return;
   }
+  // Success
+  errEl.style.display = 'none';
+  currentDoctor = doctor;
+  document.getElementById('admin-login').style.display = 'none';
+  const dash = document.getElementById('admin-dashboard');
+  dash.classList.add('active');
+  if (window.innerWidth > 900) {
+    dash.style.display = 'grid';
+    dash.style.gridTemplateColumns = '250px 1fr';
+  } else {
+    dash.style.display = 'block';
+  }
+  // Show doctor name in sidebar
+  const nameEl = document.getElementById('sidebar-doctor-name');
+  if (nameEl) nameEl.textContent = doctor.name;
+  document.getElementById('admin-date-display').textContent =
+    new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  renderAdminServices();
+  renderAvailability();
+  populateServiceFilter();
+  updateAdminStats();
+  renderAdminAppointments();
+  renderAdminPatients();
 }
 
 function adminLogout() {
+  currentDoctor = null;
+  selectedDoctorId = null;
   const dash = document.getElementById('admin-dashboard');
   dash.style.display = 'none';
   dash.classList.remove('active');
   document.getElementById('admin-login').style.display = 'flex';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').style.display = 'none';
+  document.getElementById('pass-row').style.display = 'none';
+  document.getElementById('login-btn').style.display = 'none';
+  // Reset doctor button selection
+  DOCTORS_CONFIG.forEach(d => {
+    const btn = document.getElementById('docbtn-' + d.id);
+    const dot = document.getElementById('docbtn-dot-' + d.id);
+    if (btn) { btn.style.borderColor = 'var(--light-gray)'; btn.style.background = 'var(--warm-white)'; }
+    if (dot) dot.style.background = 'var(--light-gray)';
+  });
 }
 
 // ════════════════════════════════════════════════
@@ -1003,11 +1089,8 @@ function showAdminPanel(id, el) {
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   if (el) el.classList.add('active');
   const titles = {
-    'overview': 'Overview',
-    'appointments': 'Appointments',
-    'patients': 'Patients',
-    'services-admin': 'Services',
-    'availability': 'Availability'
+    'overview': 'Overview', 'appointments': 'Appointments',
+    'patients': 'Patients', 'services-admin': 'Services', 'availability': 'Availability'
   };
   document.getElementById('admin-page-label').textContent = titles[id] || id;
   if (id === 'appointments') renderAdminAppointments();
@@ -1031,21 +1114,21 @@ function emptyState(glyph, title, desc) {
 // STATS
 // ════════════════════════════════════════════════
 function updateAdminStats() {
-  const total = bookings.length;
-  const pending = bookings.filter(b => b.status === 'pending').length;
-  const confirmed = bookings.filter(b => b.status === 'confirmed').length;
-  const unique = [...new Set(bookings.map(b => b.phone))].length;
+  const vis = visibleBookings();
+  const total = vis.length;
+  const pending = vis.filter(b => b.status === 'pending').length;
+  const confirmed = vis.filter(b => b.status === 'confirmed').length;
+  const unique = [...new Set(vis.map(b => b.phone))].length;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-pending').textContent = pending;
   document.getElementById('stat-confirmed').textContent = confirmed;
   document.getElementById('stat-patients').textContent = unique;
-  // Update progress bars
   const pct = (n) => total ? Math.max(8, Math.round(n/total*100)) : 0;
   const setBar = (id, val) => { const el = document.getElementById(id); if(el) el.style.width = val+'%'; };
   setBar('stat-bar-total', 100);
   setBar('stat-bar-pending', pct(pending));
   setBar('stat-bar-confirmed', pct(confirmed));
-  setBar('stat-bar-patients', unique ? Math.max(15, Math.round(unique/total*100)) : 0);
+  setBar('stat-bar-patients', unique ? Math.max(15, Math.round(unique/(total||1)*100)) : 0);
   renderOverviewTable();
   renderServiceChart();
 }
@@ -1055,10 +1138,11 @@ function updateAdminStats() {
 // ════════════════════════════════════════════════
 function renderOverviewTable() {
   const tbody = document.getElementById('overview-table-body');
-  const wrap = document.getElementById('overview-table-wrap');
+  const wrap  = document.getElementById('overview-table-wrap');
   const loading = document.getElementById('overview-loading');
   if (!tbody) return;
-  const recent = [...bookings].reverse().slice(0, 7);
+  const vis = visibleBookings();
+  const recent = [...vis].reverse().slice(0, 7);
   if (!recent.length) {
     if (loading) loading.style.display = 'none';
     if (wrap) wrap.style.display = 'none';
@@ -1068,25 +1152,21 @@ function renderOverviewTable() {
     }
     return;
   }
-  // Remove any empty state
   const stale = tbody.closest('.admin-card').querySelector('.empty-state');
   if (stale) stale.remove();
   tbody.innerHTML = recent.map(b => `
     <tr>
       <td><strong>${b.name}</strong></td>
       <td style="color:var(--text-light)">${b.phone}</td>
+      <td style="color:var(--text-light);font-size:11px">${b.selectedDoctor || '—'}</td>
       <td>${b.service}</td>
-      <td>${b.date} &nbsp;<span style="color:var(--text-light)">${b.time}</span></td>
+      <td>${b.date}&nbsp;<span style="color:var(--text-light)">${b.time}</span></td>
       <td><span class="status-badge status-${b.status}">${b.status}</span></td>
       <td>${actionButtons(b)}</td>
     </tr>
   `).join('');
-  // First render: show after skeleton delay; subsequent renders: show immediately
   if (loading && loading.style.display !== 'none') {
-    setTimeout(() => {
-      if (loading) loading.style.display = 'none';
-      if (wrap) wrap.style.display = 'block';
-    }, 400);
+    setTimeout(() => { if(loading) loading.style.display='none'; if(wrap) wrap.style.display='block'; }, 400);
   } else {
     if (loading) loading.style.display = 'none';
     if (wrap) wrap.style.display = 'block';
@@ -1096,8 +1176,9 @@ function renderOverviewTable() {
 function renderServiceChart() {
   const container = document.getElementById('service-chart');
   if (!container) return;
+  const vis = visibleBookings();
   const counts = {};
-  bookings.forEach(b => { counts[b.service] = (counts[b.service] || 0) + 1; });
+  vis.forEach(b => { counts[b.service] = (counts[b.service] || 0) + 1; });
   const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
   const max = sorted[0]?.[1] || 1;
   container.innerHTML = sorted.map(([name, count]) => `
@@ -1112,34 +1193,39 @@ function renderServiceChart() {
 // ════════════════════════════════════════════════
 // APPOINTMENTS TABLE
 // ════════════════════════════════════════════════
-function renderAdminAppointments(filter, statusFilter, serviceFilter) {
-  const search = filter !== undefined ? filter : (document.getElementById('appt-search')?.value || '');
-  const status = statusFilter !== undefined ? statusFilter : (document.getElementById('appt-filter')?.value || '');
-  const service = serviceFilter !== undefined ? serviceFilter : (document.getElementById('appt-service-filter')?.value || '');
-  const tbody = document.getElementById('appointments-table-body');
+function renderAdminAppointments() {
+  const search  = document.getElementById('appt-search')?.value || '';
+  const status  = document.getElementById('appt-filter')?.value || '';
+  const service = document.getElementById('appt-service-filter')?.value || '';
+  const tbody   = document.getElementById('appointments-table-body');
   if (!tbody) return;
-  const filtered = bookings.filter(b => {
-    const matchSearch = !search || b.name.toLowerCase().includes(search.toLowerCase()) || b.phone.includes(search);
-    const matchStatus = !status || b.status === status;
+
+  const vis = visibleBookings().filter(b => {
+    const matchSearch  = !search  || b.name.toLowerCase().includes(search.toLowerCase()) || b.phone.includes(search);
+    const matchStatus  = !status  || b.status === status;
     const matchService = !service || b.service === service;
     return matchSearch && matchStatus && matchService;
   });
+
   const info = document.getElementById('appt-results-info');
-  if (info) info.textContent = filtered.length ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''}` : '';
+  if (info) info.textContent = vis.length ? `${vis.length} result${vis.length !== 1 ? 's' : ''}` : '';
   const subtitle = document.getElementById('appt-card-subtitle');
-  if (subtitle) subtitle.textContent = (search || status || service) ? `Filtered results` : `All scheduled appointments`;
-  if (!filtered.length) {
+  if (subtitle) subtitle.textContent = (search || status || service) ? 'Filtered results' : 'All scheduled appointments';
+
+  // Remove stale empty state
+  const stale = tbody.closest('.admin-card').querySelector('.empty-state');
+  if (stale) stale.remove();
+
+  if (!vis.length) {
     tbody.innerHTML = '';
     tbody.closest('table').insertAdjacentHTML('afterend', emptyState('◷','No appointments found','Try adjusting your search or filters.'));
     return;
   }
-  // Remove any stale empty state
-  const stale = tbody.closest('.admin-card').querySelector('.empty-state');
-  if (stale) stale.remove();
-  tbody.innerHTML = filtered.map(b => `
+  tbody.innerHTML = vis.map(b => `
     <tr>
       <td><strong>${b.name}</strong></td>
       <td><a href="tel:${b.phone}" style="color:var(--text-light);text-decoration:none">${b.phone}</a></td>
+      <td style="font-size:11px;color:var(--text-light)">${b.selectedDoctor || '—'}</td>
       <td>${b.service}</td>
       <td>${b.date}</td>
       <td style="color:var(--text-light)">${b.time}</td>
@@ -1149,9 +1235,7 @@ function renderAdminAppointments(filter, statusFilter, serviceFilter) {
   `).join('');
 }
 
-function filterAppointments() {
-  renderAdminAppointments();
-}
+function filterAppointments() { renderAdminAppointments(); }
 
 function actionButtons(b) {
   const docId = b._docId || b.id;
@@ -1164,13 +1248,13 @@ function actionButtons(b) {
 }
 
 function updateStatus(id, status) {
-  // Optimistic local update for instant UI feedback
+  // Optimistic local update for instant feedback
   const local = bookings.find(x => x._docId === id || x._docId === String(id));
   if (local) local.status = status;
   if (bookingsRef && local && local._docId) {
     bookingsRef.doc(local._docId).update({ status })
-      .then(() => showToast('Status updated to: ' + status))
-      .catch(err => { console.warn('updateStatus error:', err); showToast('Error updating status'); });
+      .then(() => showToast('Status updated: ' + status))
+      .catch(err => { console.warn('updateStatus error:', err); showToast('Update failed — check Firestore rules'); });
   } else {
     showToast('Status updated (offline mode)');
   }
@@ -1182,40 +1266,40 @@ function updateStatus(id, status) {
 // ════════════════════════════════════════════════
 // PATIENTS TABLE
 // ════════════════════════════════════════════════
-function renderAdminPatients(filter) {
-  const search = filter !== undefined ? filter : (document.getElementById('patient-search')?.value || '');
-  const tbody = document.getElementById('patients-table-body');
+function renderAdminPatients() {
+  const search = document.getElementById('patient-search')?.value || '';
+  const tbody  = document.getElementById('patients-table-body');
   if (!tbody) return;
+  const stale = tbody.closest('.admin-card').querySelector('.empty-state');
+  if (stale) stale.remove();
+
+  const vis = visibleBookings();
   const patientMap = {};
-  bookings.forEach(b => {
+  vis.forEach(b => {
     if (!patientMap[b.phone]) {
-      patientMap[b.phone] = { name: b.name, phone: b.phone, services: [], visits: 0, lastDate: b.date, lastService: b.service };
+      patientMap[b.phone] = { name: b.name, phone: b.phone, visits: 0, lastDate: b.date || '', lastService: b.service };
     }
-    patientMap[b.phone].services.push(b.service);
     patientMap[b.phone].visits++;
-    if (b.date >= patientMap[b.phone].lastDate) {
-      patientMap[b.phone].lastDate = b.date;
+    if ((b.date || '') >= patientMap[b.phone].lastDate) {
+      patientMap[b.phone].lastDate    = b.date || '';
       patientMap[b.phone].lastService = b.service;
     }
   });
+
   let patients = Object.values(patientMap);
   if (search) {
-    patients = patients.filter(p =>
-      p.name.toLowerCase().includes(search.toLowerCase()) || p.phone.includes(search)
-    );
+    patients = patients.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.phone.includes(search));
   }
+
   const countEl = document.getElementById('patients-count');
   if (countEl) countEl.textContent = `${patients.length} patient${patients.length !== 1 ? 's' : ''}`;
-  // Remove stale empty state
-  const stale = tbody.closest('.admin-card').querySelector('.empty-state');
-  if (stale) stale.remove();
+
   if (!patients.length) {
     tbody.innerHTML = '';
-    const noSearch = !search;
     tbody.closest('table').insertAdjacentHTML('afterend',
-      noSearch
-        ? emptyState('◎','No patients yet','Patient records will appear here once bookings are received.')
-        : emptyState('◎','No patients found','Try a different name or phone number.')
+      search
+        ? emptyState('◎','No patients found','Try a different name or phone number.')
+        : emptyState('◎','No patients yet','Patient records will appear here once bookings are received.')
     );
     return;
   }
@@ -1231,9 +1315,7 @@ function renderAdminPatients(filter) {
   `).join('');
 }
 
-function filterPatients() {
-  renderAdminPatients();
-}
+function filterPatients() { renderAdminPatients(); }
 
 // ════════════════════════════════════════════════
 // SERVICES ADMIN
@@ -1261,11 +1343,15 @@ function renderAdminServices() {
 function editService(docId) {
   const s = SERVICES.find(x => x._docId === docId);
   if (!s) return;
-  document.getElementById('edit-service-id').value = docId;
-  document.getElementById('edit-service-name').value = s.name;
-  document.getElementById('edit-service-cat').value = s.cat;
-  document.getElementById('edit-service-duration').value = s.duration;
-  document.getElementById('edit-service-price').value = s.price;
+  document.getElementById('edit-service-id').value       = docId;
+  document.getElementById('edit-service-name').value     = s.name     || '';
+  document.getElementById('edit-service-cat').value      = s.cat      || '';
+  document.getElementById('edit-service-duration').value = s.duration || '';
+  document.getElementById('edit-service-price').value    = s.price    || '';
+  // Restore edit-mode defaults in case addServiceAdmin changed them
+  document.querySelector('.edit-modal-title').textContent = 'Edit Service';
+  document.querySelector('.edit-modal-sub').textContent   = 'Update service details';
+  document.querySelector('.edit-modal-save').onclick      = saveEditService;
   document.getElementById('edit-service-modal').classList.add('open');
   document.getElementById('edit-service-name').focus();
 }
@@ -1275,26 +1361,20 @@ function closeEditModal() {
 }
 
 function saveEditService() {
-  const docId = document.getElementById('edit-service-id').value;
-  const s = SERVICES.find(x => x._docId === docId);
-  if (!s) return;
+  const docId    = document.getElementById('edit-service-id').value;
+  const s        = SERVICES.find(x => x._docId === docId);
   const name     = document.getElementById('edit-service-name').value.trim();
   const cat      = document.getElementById('edit-service-cat').value.trim();
   const duration = document.getElementById('edit-service-duration').value.trim();
   const price    = document.getElementById('edit-service-price').value.trim();
   if (!name) { document.getElementById('edit-service-name').focus(); return; }
-  const updates = {};
-  if (name)     updates.name     = name;
-  if (cat)      updates.cat      = cat;
-  if (duration) updates.duration = duration;
-  if (price)    updates.price    = price;
+  const updates = { name, cat, duration, price };
   closeEditModal();
-  if (servicesRef) {
+  if (servicesRef && docId) {
     servicesRef.doc(docId).update(updates)
       .then(() => showToast('Service updated successfully'))
-      .catch(e => { console.error('Update error:', e); showToast('Update failed — check console'); });
-  } else {
-    // Offline fallback
+      .catch(e => { console.error('Update error:', e); showToast('Update failed — check Firestore rules'); });
+  } else if (s) {
     Object.assign(s, updates);
     renderAdminServices();
     populateServiceFilter();
@@ -1302,18 +1382,15 @@ function saveEditService() {
   }
 }
 
-// Close modal on overlay click
 const _editModal = document.getElementById('edit-service-modal');
-if (_editModal) _editModal.addEventListener('click', function(e) {
-  if (e.target === this) closeEditModal();
-});
+if (_editModal) _editModal.addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
 function deleteService(docId) {
   if (confirm('Delete this service? This cannot be undone.')) {
-    if (servicesRef) {
+    if (servicesRef && docId) {
       servicesRef.doc(docId).delete()
         .then(() => showToast('Service deleted'))
-        .catch(e => { console.error('Delete error:', e); showToast('Delete failed — check console'); });
+        .catch(e => { console.error('Delete error:', e); showToast('Delete failed — check Firestore rules'); });
     } else {
       const i = SERVICES.findIndex(s => s._docId === docId);
       if (i >= 0) SERVICES.splice(i, 1);
@@ -1325,36 +1402,30 @@ function deleteService(docId) {
 }
 
 function addServiceAdmin() {
-  document.getElementById('edit-service-id').value = '';
-  document.getElementById('edit-service-name').value = '';
-  document.getElementById('edit-service-cat').value = '';
+  document.getElementById('edit-service-id').value       = '';
+  document.getElementById('edit-service-name').value     = '';
+  document.getElementById('edit-service-cat').value      = '';
   document.getElementById('edit-service-duration').value = '30 min';
-  document.getElementById('edit-service-price').value = 'From SAR 800';
+  document.getElementById('edit-service-price').value    = 'From SAR 800';
   document.querySelector('.edit-modal-title').textContent = 'Add Service';
-  document.querySelector('.edit-modal-sub').textContent = 'Enter new service details';
+  document.querySelector('.edit-modal-sub').textContent   = 'Enter new service details';
   document.querySelector('.edit-modal-save').onclick = function() {
     const name     = document.getElementById('edit-service-name').value.trim();
     const cat      = document.getElementById('edit-service-cat').value.trim() || 'General';
     const duration = document.getElementById('edit-service-duration').value.trim() || '30 min';
     const price    = document.getElementById('edit-service-price').value.trim() || 'From SAR 800';
     if (!name) { document.getElementById('edit-service-name').focus(); return; }
-    const newService = {
-      cat, name, desc: '', duration, price,
-      sortOrder: SERVICES.length + 1,
-      createdAt: firebase.firestore ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
-    };
-    // Build a stable slug-based doc ID
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const newService = { cat, name, desc: '', duration, price, sortOrder: SERVICES.length + 1 };
+    const slug  = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     const docId = slug + '-' + Date.now();
     closeEditModal();
-    // Restore modal to edit mode
     document.querySelector('.edit-modal-title').textContent = 'Edit Service';
-    document.querySelector('.edit-modal-sub').textContent = 'Update service details';
-    document.querySelector('.edit-modal-save').onclick = saveEditService;
+    document.querySelector('.edit-modal-sub').textContent   = 'Update service details';
+    document.querySelector('.edit-modal-save').onclick      = saveEditService;
     if (servicesRef) {
       servicesRef.doc(docId).set(newService)
         .then(() => showToast('Service added successfully'))
-        .catch(e => { console.error('Add error:', e); showToast('Add failed — check console'); });
+        .catch(e => { console.error('Add error:', e); showToast('Add failed — check Firestore rules'); });
     } else {
       SERVICES.push({ _docId: docId, id: docId, ...newService });
       renderAdminServices();
@@ -1408,10 +1479,11 @@ function showToast(msg) {
   setTimeout(() => t.remove(), 3000);
 }
 
-// Enter key on password field
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  const p = document.getElementById('login-pass');
-  if (p) p.focus();
+  buildDoctorButtons();
 });
 </script>
 </body>

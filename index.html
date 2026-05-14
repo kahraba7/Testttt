@@ -287,6 +287,59 @@
   }
   .doctor-creds-list .cred-item { color: rgba(250,248,245,0.6); }
 
+  /* ── OUR DOCTORS SECTION ── */
+  #our-doctors { background: var(--cream); }
+  .doctors-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 3px; margin-top: 60px;
+  }
+  .doctor-card {
+    position: relative; overflow: hidden; cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .doctor-card:hover { transform: translateY(-6px); }
+  .doctor-card-img-wrap {
+    aspect-ratio: 3/4; overflow: hidden; position: relative;
+  }
+  .doctor-card-img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top center;
+    filter: grayscale(10%) contrast(1.04);
+    transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .doctor-card:hover .doctor-card-img { transform: scale(1.04); filter: grayscale(0%); }
+  .doctor-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(13,11,9,0.92) 0%, rgba(13,11,9,0.2) 45%, transparent 70%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 32px 28px;
+  }
+  .doctor-card-role {
+    font-size: 9px; letter-spacing: 3px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .doctor-card-name {
+    font-family: var(--font-display); font-size: 26px;
+    color: var(--cream); font-weight: 300; line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .doctor-card-book {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--gold); color: var(--dark);
+    padding: 10px 20px; font-size: 10px; letter-spacing: 2px;
+    font-weight: 600; border: none; cursor: pointer;
+    font-family: var(--font-body); text-transform: uppercase;
+    transition: background 0.3s; width: fit-content;
+  }
+  .doctor-card-book:hover { background: var(--champagne); }
+  .doctor-card-border {
+    position: absolute; inset: 12px;
+    border: 1px solid rgba(212,184,150,0.15); pointer-events: none;
+  }
+  @media (max-width: 900px) {
+    .doctors-grid { grid-template-columns: 1fr; gap: 2px; }
+    .doctor-card-img-wrap { aspect-ratio: 4/5; }
+  }
+
   /* ── ABOUT STRIP ── */
   #about-strip {
     background: var(--charcoal); padding: 80px 60px;
@@ -1009,6 +1062,7 @@
 <div class="mobile-menu" id="mobile-menu">
   <a class="nav-link" onclick="closeMobileMenu();showPage('home')" id="m-nav-home">Home</a>
   <a class="nav-link" onclick="closeMobileMenu();showPage('about')" id="m-nav-about">About</a>
+  <a class="nav-link" onclick="closeMobileMenu();showSection('our-doctors')" id="m-nav-doctors">Doctors</a>
   <a class="nav-link" onclick="closeMobileMenu();showSection('services')" id="m-nav-services">Services</a>
   <a class="nav-link" onclick="closeMobileMenu();showSection('before-after')" id="m-nav-ba">Before &amp; After</a>
   <a class="nav-link" onclick="closeMobileMenu();showSection('testimonials')" id="m-nav-test">Reviews</a>
@@ -1033,6 +1087,7 @@
   <div class="nav-links">
     <a class="nav-link" onclick="showPage('home')" id="nav-home">Home</a>
     <a class="nav-link" onclick="showPage('about')" id="nav-about">About</a>
+    <a class="nav-link" onclick="showSection('our-doctors')" id="nav-doctors">Doctors</a>
     <a class="nav-link" onclick="showSection('services')" id="nav-services">Services</a>
     <a class="nav-link" onclick="showSection('before-after')" id="nav-ba">Before &amp; After</a>
     <a class="nav-link" onclick="showPage('home'); setTimeout(()=>showSection('testimonials'),100)" id="nav-test">Reviews</a>
@@ -1113,6 +1168,13 @@
           <button class="btn-primary" onclick="openBooking()" id="doctor-cta-home">Book a Consultation</button>
         </div>
       </div>
+    </section>
+
+    <!-- Our Doctors Section -->
+    <section id="our-doctors">
+      <div class="section-label" id="sec-label-doctors">Our Doctors</div>
+      <h2 class="section-title" id="sec-title-doctors">Meet the <em>Founders</em></h2>
+      <div class="doctors-grid" id="doctors-grid"></div>
     </section>
 
     <!-- About Strip -->
@@ -1447,11 +1509,22 @@
     </div>
     <div class="modal-body">
       <div class="booking-steps">
-        <div class="step active" id="step-tab-1">1. Service</div>
+        <div class="step active" id="step-tab-0">0. Doctor</div>
+        <div class="step" id="step-tab-1">1. Service</div>
         <div class="step" id="step-tab-2">2. Date</div>
         <div class="step" id="step-tab-3">3. Time</div>
         <div class="step" id="step-tab-4">4. Details</div>
         <div class="step" id="step-tab-5">5. Confirm</div>
+      </div>
+
+      <!-- Step 0: Doctor -->
+      <div class="step-panel active" id="step-0">
+        <div class="form-label" id="s0-label">Choose Your Doctor</div>
+        <div class="service-select-grid" id="doctor-select-grid" style="grid-template-columns:1fr;gap:12px;margin-top:12px"></div>
+        <div class="modal-nav">
+          <div></div>
+          <button class="btn-step" onclick="goStep(1)" id="s0-next">Continue →</button>
+        </div>
       </div>
 
       <!-- Step 1: Service -->
@@ -1459,7 +1532,7 @@
         <div class="form-label" id="s1-label">Select Treatment</div>
         <div class="service-select-grid" id="service-select-grid"></div>
         <div class="modal-nav">
-          <div></div>
+          <button class="btn-step secondary" onclick="goStep(0)" id="s1-back">← Back</button>
           <button class="btn-step" onclick="goStep(2)" id="s1-next">Continue →</button>
         </div>
       </div>
@@ -1596,6 +1669,85 @@
 // DATA STORE
 // ════════════════════════════════════════════════
 
+// ════════════════════════════════════════════════
+// DOCTORS DATA
+// ════════════════════════════════════════════════
+const DOCTORS = [
+  {
+    id: 'dr-samar',
+    name: 'Dr. Samar Yehia',
+    nameAr: 'د. سمر يحيى',
+    role: 'Co-Founder · Aesthetic Medicine',
+    roleAr: 'مؤسسة مشاركة · طب تجميلي',
+    img: 'assets/images/dr_samar.jpg',
+  },
+  {
+    id: 'dr-muhammed',
+    name: 'Dr. Muhammed Darwish',
+    nameAr: 'د. محمد درويش',
+    role: 'Co-Founder · Aesthetic Medicine',
+    roleAr: 'مؤسس مشارك · طب تجميلي',
+    img: 'assets/images/dr_muhammed.jpg',
+  },
+  {
+    id: 'dr-noha',
+    name: 'Dr. Noha Elsoudy',
+    nameAr: 'د. نهى السودي',
+    role: 'Co-Founder · Aesthetic Medicine',
+    roleAr: 'مؤسسة مشاركة · طب تجميلي',
+    img: 'assets/images/dr_noha.jpg',
+  },
+];
+
+function renderDoctorsGrid() {
+  const g = document.getElementById('doctors-grid');
+  if (!g) return;
+  g.innerHTML = DOCTORS.map(d => `
+    <div class="doctor-card">
+      <div class="doctor-card-img-wrap">
+        <img src="${d.img}" alt="${d.name}" class="doctor-card-img" loading="lazy" decoding="async">
+        <div class="doctor-card-border"></div>
+        <div class="doctor-card-overlay">
+          <div class="doctor-card-role">${currentLang==='ar'?d.roleAr:d.role}</div>
+          <div class="doctor-card-name">${currentLang==='ar'?d.nameAr:d.name}</div>
+          <button class="doctor-card-book" onclick="openBookingWithDoctor('${d.id}')">${currentLang==='ar'?'احجز الآن':'Book Now'}</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDoctorSelect() {
+  const g = document.getElementById('doctor-select-grid');
+  if (!g) return;
+  g.innerHTML = DOCTORS.map(d => `
+    <div class="service-option ${booking.doctor?.id===d.id?'selected':''}" 
+         data-id="${d.id}" 
+         onclick="selectDoctor('${d.id}', this)"
+         style="display:flex;align-items:center;gap:16px;padding:16px 20px">
+      <img src="${d.img}" alt="${d.name}" style="width:52px;height:52px;object-fit:cover;object-position:top center;border-radius:2px;border:1px solid var(--light-gray);flex-shrink:0">
+      <div>
+        <div class="service-option-name" style="font-size:15px">${currentLang==='ar'?d.nameAr:d.name}</div>
+        <div class="service-option-dur">${currentLang==='ar'?d.roleAr:d.role}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectDoctor(id, el) {
+  document.querySelectorAll('#doctor-select-grid .service-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  booking.doctor = DOCTORS.find(d => d.id === id);
+}
+
+function openBookingWithDoctor(doctorId) {
+  booking = { doctor: null, service: null, date: null, time: null, name: '', phone: '', notes: '' };
+  booking.doctor = DOCTORS.find(d => d.id === doctorId);
+  goStep(1);
+  document.getElementById('booking-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
 // Default services (used as fallback if Firestore is unavailable)
 const SERVICES_DEFAULT = [
   { id: 'diamond-lips',    cat: 'Lip Specialist',       catAr: 'أخصائية الشفاه',    name: 'Diamond Lips',    nameAr: 'شفاه الماس',         desc: 'Proprietary technique for naturally full, symmetrical lips balanced with your smile architecture.', descAr: 'تقنية خاصة لشفاه ممتلئة طبيعية ومتناسقة مع هندسة ابتسامتك.', duration: '45–60 min', durationMin: 60, price: 'From SAR 1,200' },
@@ -1708,6 +1860,8 @@ const T = {
     'strip1-t': 'Diamond Lips Technique', 'strip1-d': 'Proprietary lip augmentation method ensuring volume, contour, and projection perfectly balanced with your smile design.',
     'strip2-t': 'Board Certified Physician', 'strip2-d': 'Internationally trained aesthetic medicine specialist with advanced certification in facial anatomy and injectables.',
     'strip3-t': 'Personalized Treatment', 'strip3-d': 'Every treatment plan is uniquely crafted to enhance your natural features — no cookie-cutter results.',
+    'sec-label-doctors': 'Our Doctors', 'sec-title-doctors': 'Meet the <em>Founders</em>',
+    'step-tab-0': '0. Doctor',
     'sec-label-services': 'Our Services', 'sec-title-services': 'Treatments<br><em>Crafted for You</em>',
     'sec-label-ba': 'Results Gallery', 'sec-title-ba': 'Before &amp; <em>After</em>',
     'sec-label-test': 'Patient Stories', 'sec-title-test': 'What Our<br><em>Patients Say</em>',
@@ -1718,7 +1872,7 @@ const T = {
     'contact-ph-k': 'WhatsApp & Calls', 'wa-btn-text': 'Message on WhatsApp',
     'cf-name-l': 'Full Name', 'cf-phone-l': 'Phone Number', 'cf-service-l': 'Service of Interest', 'cf-msg-l': 'Message',
     'cf-submit': 'Send Message',
-    'nav-home': 'Home', 'nav-about': 'About', 'nav-services': 'Services', 'nav-ba': 'Before & After',
+    'nav-home': 'Home', 'nav-about': 'About', 'nav-doctors': 'Doctors', 'nav-services': 'Services', 'nav-ba': 'Before & After',
     'nav-test': 'Reviews', 'nav-faq': 'FAQ', 'nav-contact': 'Contact', 'nav-book': 'Book Now',
     'footer-about': 'Premium aesthetic clinic in Sheikh Zayed. Injectables, advanced skin, and beauty treatments by Dr. Samar Yehia.',
     'footer-nav-title': 'Navigation', 'footer-services-title': 'Services', 'footer-contact-title': 'Contact',
@@ -1751,6 +1905,8 @@ const T = {
     'strip1-t': 'تقنية شفاه الماس', 'strip1-d': 'أسلوب خاص لتكبير الشفاه يضمن التوازن الكامل مع تصميم ابتسامتك.',
     'strip2-t': 'طبيبة معتمدة', 'strip2-d': 'أخصائية دولية في طب التجميل بشهادات متقدمة في تشريح الوجه والحقن.',
     'strip3-t': 'علاج مخصص', 'strip3-d': 'كل خطة علاج مصممة لإبراز جمالك الطبيعي — نتائج فريدة لكل مريضة.',
+    'sec-label-doctors': 'أطباؤنا', 'sec-title-doctors': 'تعرف على <em>المؤسسين</em>',
+    'step-tab-0': '٠. الطبيب',
     'sec-label-services': 'خدماتنا', 'sec-title-services': 'علاجات<br><em>مصممة لكِ</em>',
     'sec-label-ba': 'معرض النتائج', 'sec-title-ba': 'قبل &amp; <em>بعد</em>',
     'sec-label-test': 'قصص المريضات', 'sec-title-test': 'ماذا تقول<br><em>مريضاتنا</em>',
@@ -1761,7 +1917,7 @@ const T = {
     'contact-ph-k': 'واتساب والمكالمات', 'wa-btn-text': 'تواصلي عبر واتساب',
     'cf-name-l': 'الاسم الكامل', 'cf-phone-l': 'رقم الهاتف', 'cf-service-l': 'الخدمة المطلوبة', 'cf-msg-l': 'الرسالة',
     'cf-submit': 'إرسال الرسالة',
-    'nav-home': 'الرئيسية', 'nav-about': 'عن الدكتورة', 'nav-services': 'الخدمات', 'nav-ba': 'قبل وبعد',
+    'nav-home': 'الرئيسية', 'nav-about': 'عن الدكتورة', 'nav-doctors': 'الأطباء', 'nav-services': 'الخدمات', 'nav-ba': 'قبل وبعد',
     'nav-test': 'التقييمات', 'nav-faq': 'الأسئلة', 'nav-contact': 'تواصلي', 'nav-book': 'احجزي الآن',
     'footer-about': 'طب تجميلي فاخر في الرياض. متخصصة في شفاه الماس وتناسق الوجه وتجديد البشرة.',
     'footer-nav-title': 'التنقل', 'footer-services-title': 'الخدمات', 'footer-contact-title': 'التواصل',
@@ -1797,7 +1953,7 @@ function setLang(lang) {
     if (el) el.innerHTML = v;
   });
   // Sync mobile menu labels
-  const mobileMap = {'m-nav-home':'nav-home','m-nav-about':'nav-about','m-nav-services':'nav-services','m-nav-ba':'nav-ba','m-nav-test':'nav-test','m-nav-faq':'nav-faq','m-nav-contact':'nav-contact','m-nav-book':'nav-book'};
+  const mobileMap = {'m-nav-home':'nav-home','m-nav-about':'nav-about','m-nav-doctors':'nav-doctors','m-nav-services':'nav-services','m-nav-ba':'nav-ba','m-nav-test':'nav-test','m-nav-faq':'nav-faq','m-nav-contact':'nav-contact','m-nav-book':'nav-book'};
   Object.entries(mobileMap).forEach(([mid,did]) => {
     const me = document.getElementById(mid);
     if (me && t[did]) me.innerHTML = t[did];
@@ -1834,6 +1990,8 @@ function setLang(lang) {
   renderFAQ();
   renderServiceSelect();
   renderContactServices();
+  renderDoctorsGrid();
+  renderDoctorSelect();
 }
 
 // ════════════════════════════════════════════════
@@ -1992,16 +2150,16 @@ function showSite() {
 // ════════════════════════════════════════════════
 // BOOKING SYSTEM
 // ════════════════════════════════════════════════
-let booking = { service: null, date: null, time: null, name: '', phone: '', notes: '' };
+let booking = { doctor: null, service: null, date: null, time: null, name: '', phone: '', notes: '' };
 let calDate = new Date();
 
 function openBooking(serviceId) {
-  booking = { service: null, date: null, time: null, name: '', phone: '', notes: '' };
+  booking = { doctor: null, service: null, date: null, time: null, name: '', phone: '', notes: '' };
   if (serviceId) {
     const s = SERVICES.find(x => x.id === serviceId);
     if (s) booking.service = s;
   }
-  goStep(1);
+  goStep(0);
   document.getElementById('booking-modal').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -2126,6 +2284,7 @@ function renderSummary() {
   const s = document.getElementById('booking-summary');
   if (!s) return;
   const rows = [
+    [currentLang==='ar'?'الطبيب/الطبيبة':'Doctor', booking.doctor?.name || '—'],
     [currentLang==='ar'?'الخدمة':'Service', booking.service?.name || '—'],
     [currentLang==='ar'?'التاريخ':'Date', booking.date || '—'],
     [currentLang==='ar'?'الوقت':'Time', booking.time || '—'],
@@ -2142,7 +2301,8 @@ function renderSummary() {
 
 let currentStep = 1;
 function goStep(n) {
-  // Better validation with inline feedback instead of alert
+  // Validation
+  if (n === 1 && !booking.doctor) { highlightRequired('doctor-select-grid', currentLang==='ar'?'اختاري الطبيب/الطبيبة أولاً':'Please select a doctor'); return; }
   if (n === 2 && !booking.service) { highlightRequired('service-select-grid', currentLang==='ar'?'اختاري خدمة أولاً':'Please select a treatment'); return; }
   if (n === 3 && !booking.date) { highlightRequired('cal-days', currentLang==='ar'?'اختاري تاريخاً':'Please select a date'); return; }
   if (n === 4 && !booking.time) { highlightRequired('time-grid', currentLang==='ar'?'اختاري وقتاً':'Please select a time slot'); return; }
@@ -2160,13 +2320,15 @@ function goStep(n) {
     renderSummary();
   }
   currentStep = n;
-  document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i+1===n));
+  // step panels: 0 through 5
+  document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i===n));
   document.querySelectorAll('.step').forEach((s,i) => {
-    s.classList.toggle('active', i+1===n);
-    s.classList.toggle('done', i+1<n);
+    s.classList.toggle('active', i===n);
+    s.classList.toggle('done', i<n);
   });
   if (n === 2) renderCalendar();
   if (n === 3) renderTimeSlots();
+  if (n === 0) renderDoctorSelect();
   if (n === 1) renderServiceSelect();
 }
 
@@ -2193,7 +2355,13 @@ function confirmBooking() {
 
   // Save to Firestore
   const newBooking = {
-    name: booking.name, phone: booking.phone,
+    patientName: booking.name,
+    phone: booking.phone,
+    selectedDoctor: booking.doctor?.name || '',
+    selectedService: booking.service.name,
+    bookingDate: booking.date + ' ' + booking.time,
+    // legacy / admin-display fields kept for compatibility
+    name: booking.name,
     service: booking.service.name,
     serviceId: booking.service.id,
     date: booking.date, time: booking.time,
@@ -2247,9 +2415,9 @@ function confirmBooking() {
 
 function buildWhatsAppMessage(b) {
   if (currentLang === 'ar') {
-    return `مرحباً، أود تأكيد حجزي:\n\n👤 الاسم: ${b.name}\n✨ الخدمة: ${b.service.nameAr||b.service.name}\n📅 التاريخ: ${b.date}\n⏰ الوقت: ${b.time}\n📱 الهاتف: ${b.phone}${b.notes?'\n📝 ملاحظات: '+b.notes:''}\n\nشكراً!`;
+    return `مرحباً، أود تأكيد حجزي:\n\n👤 الاسم: ${b.name}\n🩺 الطبيب/الطبيبة: ${b.doctor?.name||'—'}\n✨ الخدمة: ${b.service.nameAr||b.service.name}\n📅 التاريخ: ${b.date}\n⏰ الوقت: ${b.time}\n📱 الهاتف: ${b.phone}${b.notes?'\n📝 ملاحظات: '+b.notes:''}\n\nشكراً!`;
   }
-  return `Hello, I'd like to confirm my booking:\n\n👤 Name: ${b.name}\n✨ Service: ${b.service.name}\n📅 Date: ${b.date}\n⏰ Time: ${b.time}\n📱 Phone: ${b.phone}${b.notes?'\n📝 Notes: '+b.notes:''}\n\nThank you!`;
+  return `Hello, I'd like to confirm my booking:\n\n👤 Name: ${b.name}\n🩺 Doctor: ${b.doctor?.name||'—'}\n✨ Service: ${b.service.name}\n📅 Date: ${b.date}\n⏰ Time: ${b.time}\n📱 Phone: ${b.phone}${b.notes?'\n📝 Notes: '+b.notes:''}\n\nThank you!`;
 }
 
 function showToast(msg, type) {
@@ -2528,6 +2696,7 @@ window.addEventListener('scroll', () => {
 // INIT
 // ════════════════════════════════════════════════
 function init() {
+  renderDoctorsGrid();
   renderServices();
   renderBeforeAfter();
   renderTestimonials();
