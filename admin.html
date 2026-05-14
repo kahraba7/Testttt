@@ -565,6 +565,7 @@
   @media (max-width: 400px) {
     .stats-grid { grid-template-columns: 1fr; }
   }
+</style>
 </head>
 <body>
 
@@ -840,6 +841,16 @@
 </div>
 
 <script>
+// ── Global error guard — prevents JS errors from causing white screen ──
+window.onerror = function(msg, src, line, col, err) {
+  console.warn('[REJOV Admin] JS error caught:', msg, 'at', src, line + ':' + col);
+  return false; // Don't suppress console, but prevent default error handling
+};
+window.addEventListener('unhandledrejection', function(e) {
+  console.warn('[REJOV Admin] Unhandled promise rejection:', e.reason);
+  e.preventDefault();
+});
+
 // ════════════════════════════════════════════════
 // DATA — mirrors index.html booking data
 // ════════════════════════════════════════════════
@@ -1238,7 +1249,8 @@ function saveEditService() {
 }
 
 // Close modal on overlay click
-document.getElementById('edit-service-modal').addEventListener('click', function(e) {
+const _editModal = document.getElementById('edit-service-modal');
+if (_editModal) _editModal.addEventListener('click', function(e) {
   if (e.target === this) closeEditModal();
 });
 
