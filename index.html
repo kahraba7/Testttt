@@ -1633,10 +1633,17 @@ try {
     db = firebase.firestore();
     bookingsRef = db.collection('bookings');
 
-    // Real-time listener: updates bookings[] and refreshes admin UI whenever
-    // Firestore data changes (new booking, status update from admin.html, etc.)
+    // Real-time listener: keeps bookings[] in sync with Firestore.
+    // Also refreshes time slots if booking modal is open on step 3.
     bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
       bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
+      try {
+        const modal = document.getElementById('booking-modal');
+        const step3 = document.getElementById('step-3');
+        if (modal && modal.classList.contains('active') && step3 && step3.classList.contains('active')) {
+          renderTimeSlots();
+        }
+      } catch(e) { /* safe */ }
     }, err => console.warn('Firestore listener error:', err));
   } else {
     console.warn('Firebase not available — running in offline mode');
@@ -2155,17 +2162,28 @@ function confirmBooking() {
   btn.textContent = currentLang==='ar'?'جارٍ الحجز...':'Processing...';
   btn.disabled = true;
 
-  // Save to Firestore — no setTimeout needed; we show success immediately
-  // then let the real-time listener sync the in-memory array.
+  // Save to Firestore
   const newBooking = {
     name: booking.name, phone: booking.phone,
     service: booking.service.name,
+    serviceId: booking.service.id,
     date: booking.date, time: booking.time,
     status: 'pending', notes: booking.notes || '',
-    createdAt: (db && firebase && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
+    createdAt: (db && firebase && firebase.firestore && firebase.firestore.FieldValue)
+      ? firebase.firestore.FieldValue.serverTimestamp()
+      : new Date().toISOString()
   };
   if (bookingsRef) {
-    bookingsRef.add(newBooking).catch(err => console.warn('Save booking error:', err));
+    bookingsRef.add(newBooking)
+      .then(() => console.log('Booking saved to Firestore'))
+      .catch(err => {
+        console.warn('Save booking error:', err);
+        // Fallback: push to local array so UI is consistent even if Firestore fails
+        bookings.push({ ...newBooking, _docId: 'local_' + Date.now(), createdAt: new Date().toISOString() });
+      });
+  } else {
+    // Offline fallback — keep in memory for this session
+    bookings.push({ ...newBooking, _docId: 'local_' + Date.now(), createdAt: new Date().toISOString() });
   }
 
   (async () => {

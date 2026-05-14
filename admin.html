@@ -870,6 +870,7 @@ const SERVICES = [
 let bookings = [];
 let db = null;
 let bookingsRef = null;
+let firestoreReady = false; // becomes true after first snapshot
 
 try {
   if (typeof firebase !== 'undefined' && typeof FIREBASE_CONFIG !== 'undefined') {
@@ -877,17 +878,18 @@ try {
     db = firebase.firestore();
     bookingsRef = db.collection('bookings');
 
-    // Start listener — UI refreshes automatically on any change
+    // Start listener — UI refreshes automatically on any Firestore change
     bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
       bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
-      // Only refresh dashboard if it is currently visible (user is logged in)
+      firestoreReady = true;
+      // Refresh dashboard whenever it is visible (logged in)
       const dash = document.getElementById('admin-dashboard');
       if (dash && dash.classList.contains('active')) {
         updateAdminStats();
         renderAdminAppointments();
         renderAdminPatients();
       }
-    }, err => console.warn('Firestore listener error (admin):', err));
+    }, err => { console.warn('Firestore listener error (admin):', err); firestoreReady = true; });
   } else {
     console.warn('Firebase not available — admin running in offline mode');
   }
@@ -927,12 +929,27 @@ function adminLogin() {
     }
     document.getElementById('admin-date-display').textContent =
       new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-    updateAdminStats();
-    renderAdminAppointments();
-    renderAdminPatients();
+    // Always render services/availability immediately (no Firestore dependency)
     renderAdminServices();
     renderAvailability();
     populateServiceFilter();
+    if (firestoreReady) {
+      // Firestore data already loaded — render immediately
+      updateAdminStats();
+      renderAdminAppointments();
+      renderAdminPatients();
+    } else if (bookingsRef) {
+      // Firestore connected but first snapshot not yet received — show loader,
+      // the onSnapshot callback will re-render once data arrives
+      updateAdminStats();         // shows 0s while loading
+      renderAdminAppointments();  // shows empty state
+      renderAdminPatients();      // shows empty state
+    } else {
+      // Firebase unavailable — render with empty data
+      updateAdminStats();
+      renderAdminAppointments();
+      renderAdminPatients();
+    }
   } else {
     errEl.style.display = 'block';
     document.getElementById('login-pass').value = '';

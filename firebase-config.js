@@ -4,11 +4,10 @@
 // CDN-compatible config — works directly in browser, no build step required
 
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyCnCpw2Ytg68yR2p4wIJyihrWwtv1Vp0t0",
-  authDomain:        "rejov-92c66.firebaseapp.com",
-  projectId:         "rejov-92c66",
-  storageBucket:     "rejov-92c66.firebasestorage.app",
-  messagingSenderId: "374721141942",
-  appId:             "1:374721141942:web:3e1400c0bde9def2475a17",
-  measurementId:     "G-KV9FHM847D"
+  apiKey:            "AIzaSyDXyck3FWYKr57642jH-hLoYqkd_HWJw5o",
+  authDomain:        "rejov-clinic.firebaseapp.com",
+  projectId:         "rejov-clinic",
+  storageBucket:     "rejov-clinic.firebasestorage.app",
+  messagingSenderId: "577875293930",
+  appId:             "1:577875293930:web:4d57e735269b58d6f2c993"
 };
