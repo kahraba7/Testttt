@@ -288,7 +288,23 @@
   .doctor-creds-list .cred-item { color: rgba(250,248,245,0.6); }
 
   /* ── OUR DOCTORS SECTION ── */
-  #our-doctors { background: var(--cream); }
+  #our-doctors { background: var(--charcoal); padding-bottom: 0; }
+  #our-doctors > .section-label,
+  #our-doctors > .section-title {
+    padding-left: 80px; padding-right: 80px;
+    color: var(--cream);
+  }
+  #our-doctors > .section-title em { color: var(--champagne); }
+  #our-doctors .doctor-section-inner {
+    border-top: 1px solid rgba(212,184,150,0.12);
+    min-height: 580px;
+  }
+  .doctor-section-reverse {
+    direction: rtl;
+  }
+  .doctor-section-reverse > * {
+    direction: ltr;
+  }
   .doctors-grid {
     display: grid; grid-template-columns: repeat(3, 1fr);
     gap: 3px; margin-top: 60px;
@@ -1015,8 +1031,10 @@
     body.rtl .hero-img-wrap { left: 0; right: auto; }
     #about-strip { grid-template-columns: 1fr; padding: 60px 20px; }
     .doctor-section-inner { grid-template-columns: 1fr; }
+    .doctor-section-reverse { direction: ltr; }
     .doctor-img-col { height: 380px; }
     .doctor-info-col { padding: 50px 20px; }
+    #our-doctors > .section-label, #our-doctors > .section-title { padding-left: 20px; padding-right: 20px; }
     .strip-divider { display: none; }
     .strip-item { padding: 24px 20px; border-bottom: 1px solid rgba(212,184,150,0.1); }
     .services-grid { grid-template-columns: 1fr; gap: 1px; }
@@ -1110,14 +1128,14 @@
     <!-- Hero -->
     <section id="hero">
       <div class="hero-bg"></div>
-      <video class="hero-video-bg" autoplay muted loop playsinline preload="metadata" poster="IMG_2386.jpeg">
+      <video class="hero-video-bg" autoplay muted loop playsinline preload="metadata" poster="assets/images/dr_samar.jpg">
         <source src="hero.mp4" type="video/mp4">
       </video>
       <div class="hero-texture"></div>
       <div class="hero-accent"></div>
       <div class="hero-line"></div>
       <div class="hero-img-wrap">
-        <img src="IMG_2386.jpeg" alt="Dr. Samar Yehia" class="hero-img" loading="eager" decoding="async" fetchpriority="high">
+        <img src="assets/images/dr_samar.jpg" alt="Dr. Samar Yehia" class="hero-img" loading="eager" decoding="async" fetchpriority="high">
         <div class="hero-img-overlay"></div>
       </div>
       <div class="hero-content">
@@ -1152,11 +1170,11 @@
     <section id="doctor-section">
       <div class="doctor-section-inner">
         <div class="doctor-img-col">
-          <img src="IMG_2386.jpeg" alt="Dr. Samar Yehia" loading="lazy" decoding="async">
+          <img src="assets/images/dr_samar.jpg" alt="Dr. Samar Yehia" loading="lazy" decoding="async">
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
-          <div class="section-label" id="doctor-label-home">The Doctor</div>
+          <div class="section-label" id="doctor-label-home">The Doctors</div>
           <h2 class="doctor-name-title" id="doctor-name-home">Dr. Samar<br><em>Yehia</em></h2>
           <div class="doctor-creds-list" id="doctor-creds-home">
             <div class="cred-item"><div class="cred-bullet"></div>Board Certified Aesthetic Medicine Physician</div>
@@ -1174,7 +1192,42 @@
     <section id="our-doctors">
       <div class="section-label" id="sec-label-doctors">Our Doctors</div>
       <h2 class="section-title" id="sec-title-doctors">Meet the <em>Founders</em></h2>
-      <div class="doctors-grid" id="doctors-grid"></div>
+
+      <!-- Dr. Muhammed -->
+      <div class="doctor-section-inner doctor-section-alt">
+        <div class="doctor-img-col">
+          <img src="assets/images/dr_muhammed.jpg" alt="Dr. Muhammed Darwish" loading="lazy" decoding="async">
+          <div class="doctor-img-border"></div>
+        </div>
+        <div class="doctor-info-col">
+          <div class="section-label">Founder</div>
+          <h2 class="doctor-name-title">Dr. Muhammed<br><em>Darwish</em></h2>
+          <div class="doctor-creds-list">
+            <div class="cred-item"><div class="cred-bullet"></div>Aesthetic Medicine Physician</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Advanced Injectable &amp; Filler Specialist</div>
+            <div class="cred-item"><div class="cred-bullet"></div>International Training in Facial Anatomy</div>
+          </div>
+          <button class="btn-primary" onclick="openBookingWithDoctor('dr-muhammed')">Book a Consultation</button>
+        </div>
+      </div>
+
+      <!-- Dr. Noha -->
+      <div class="doctor-section-inner doctor-section-reverse">
+        <div class="doctor-img-col">
+          <img src="assets/images/dr_noha.jpg" alt="Dr. Noha Elsoudy" loading="lazy" decoding="async">
+          <div class="doctor-img-border"></div>
+        </div>
+        <div class="doctor-info-col">
+          <div class="section-label">Founder</div>
+          <h2 class="doctor-name-title">Dr. Noha<br><em>Elsoudy</em></h2>
+          <div class="doctor-creds-list">
+            <div class="cred-item"><div class="cred-bullet"></div>Aesthetic Medicine Physician</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Advanced Injectable &amp; Filler Specialist</div>
+            <div class="cred-item"><div class="cred-bullet"></div>International Training in Facial Anatomy</div>
+          </div>
+          <button class="btn-primary" onclick="openBookingWithDoctor('dr-noha')">Book a Consultation</button>
+        </div>
+      </div>
     </section>
 
     <!-- About Strip -->
@@ -1288,7 +1341,7 @@
     <div id="about-page">
       <div class="about-hero">
         <div class="about-hero-img">
-          <img src="IMG_2386.jpeg" alt="Dr. Samar Yehia">
+          <img src="assets/images/dr_samar.jpg" alt="Dr. Samar Yehia">
         </div>
         <div class="about-hero-content">
           <div class="section-label" style="color:var(--gold)" id="about-label">The Doctor</div>
@@ -1677,24 +1730,24 @@ const DOCTORS = [
     id: 'dr-samar',
     name: 'Dr. Samar Yehia',
     nameAr: 'د. سمر يحيى',
-    role: 'Co-Founder · Aesthetic Medicine',
-    roleAr: 'مؤسسة مشاركة · طب تجميلي',
+    role: 'Founder · Aesthetic Medicine',
+    roleAr: 'مؤسسة · طب تجميلي',
     img: 'assets/images/dr_samar.jpg',
   },
   {
     id: 'dr-muhammed',
     name: 'Dr. Muhammed Darwish',
     nameAr: 'د. محمد درويش',
-    role: 'Co-Founder · Aesthetic Medicine',
-    roleAr: 'مؤسس مشارك · طب تجميلي',
+    role: 'Founder · Aesthetic Medicine',
+    roleAr: 'مؤسس · طب تجميلي',
     img: 'assets/images/dr_muhammed.jpg',
   },
   {
     id: 'dr-noha',
     name: 'Dr. Noha Elsoudy',
     nameAr: 'د. نهى السودي',
-    role: 'Co-Founder · Aesthetic Medicine',
-    roleAr: 'مؤسسة مشاركة · طب تجميلي',
+    role: 'Founder · Aesthetic Medicine',
+    roleAr: 'مؤسسة · طب تجميلي',
     img: 'assets/images/dr_noha.jpg',
   },
 ];
@@ -1855,7 +1908,7 @@ const T = {
     'hero-sub': 'Natural refinement &amp; bold trends',
     'hero-desc': 'Dual expertise in aesthetics — where precision science meets artistry. Specializing in injectables, advanced skin, and beauty treatments, every result uniquely designed for you.',
     'hero-cta1': 'Book Consultation', 'hero-cta2': 'Meet Dr. Samar',
-    'doctor-label-home': 'The Doctor', 'doctor-name-home': 'Dr. Samar<br><em>Yehia</em>', 'doctor-cta-home': 'Book a Consultation',
+    'doctor-label-home': 'The Doctors', 'doctor-name-home': 'Dr. Samar<br><em>Yehia</em>', 'doctor-cta-home': 'Book a Consultation',
     'trust1': 'Patients Treated', 'trust2': 'Years Experience', 'trust3': 'Satisfaction Rate',
     'strip1-t': 'Diamond Lips Technique', 'strip1-d': 'Proprietary lip augmentation method ensuring volume, contour, and projection perfectly balanced with your smile design.',
     'strip2-t': 'Board Certified Physician', 'strip2-d': 'Internationally trained aesthetic medicine specialist with advanced certification in facial anatomy and injectables.',
@@ -1900,7 +1953,7 @@ const T = {
     'hero-sub': 'د. سمر يحيى',
     'hero-desc': 'طب تجميلي دقيق حيث يلتقي العلم بالفن. متخصصة في شفاه الماس، تناسق الوجه، وتجديد شباب البشرة — كل علاج مصمم خصيصاً لكِ.',
     'hero-cta1': 'احجزي استشارة', 'hero-cta2': 'تعرفي على د. سمر',
-    'doctor-label-home': 'الطبيبة', 'doctor-name-home': 'د. سمر<br><em>يحيى</em>', 'doctor-cta-home': 'احجزي استشارة',
+    'doctor-label-home': 'الأطباء', 'doctor-name-home': 'د. سمر<br><em>يحيى</em>', 'doctor-cta-home': 'احجزي استشارة',
     'trust1': 'مريضة تمّت معالجتها', 'trust2': 'سنوات خبرة', 'trust3': 'نسبة الرضا',
     'strip1-t': 'تقنية شفاه الماس', 'strip1-d': 'أسلوب خاص لتكبير الشفاه يضمن التوازن الكامل مع تصميم ابتسامتك.',
     'strip2-t': 'طبيبة معتمدة', 'strip2-d': 'أخصائية دولية في طب التجميل بشهادات متقدمة في تشريح الوجه والحقن.',
