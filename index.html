@@ -1,0 +1,2560 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Samar Yehia — REJOV Clinic</title>
+<!-- Firebase SDK (v10 modular via CDN compat build) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- Shared Firebase config — edit firebase-config.js only -->
+<script src="firebase-config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&family=Noto+Serif+Arabic:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF8F5;
+    --warm-white: #F5F0EB;
+    --champagne: #D4B896;
+    --gold: #B8965A;
+    --deep-gold: #8B6E3A;
+    --charcoal: #1A1714;
+    --warm-gray: #6B6359;
+    --light-gray: #E8E2DA;
+    --blush: #E8C4B8;
+    --soft-rose: #D4A090;
+    --dark: #0D0B09;
+    --text-dark: #1A1714;
+    --text-mid: #4A4540;
+    --text-light: #8A7E75;
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'Montserrat', sans-serif;
+    --font-arabic: 'Noto Serif Arabic', serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--text-dark);
+    overflow-x: hidden;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ── LANGUAGE TOGGLE (inline in nav) ── */
+  .lang-switch {
+    display: flex; align-items: center; gap: 2px;
+    margin-left: 20px;
+  }
+  .lang-btn {
+    background: none; border: 1px solid rgba(212,184,150,0.3);
+    color: rgba(250,248,245,0.6); padding: 4px 12px;
+    font-family: var(--font-body); font-size: 10px; letter-spacing: 2px;
+    cursor: pointer; transition: all 0.3s;
+  }
+  .lang-btn:first-child { border-right: none; }
+  .lang-btn:hover { color: var(--champagne); border-color: rgba(212,184,150,0.6); }
+  .lang-btn.active { background: var(--gold); color: var(--charcoal); border-color: var(--gold); }
+  nav.scrolled .lang-btn { color: var(--text-mid); border-color: var(--light-gray); }
+  nav.scrolled .lang-btn.active { background: var(--gold); color: var(--charcoal); border-color: var(--gold); }
+  nav.scrolled .lang-btn:hover { color: var(--charcoal); border-color: var(--warm-gray); }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    padding: 22px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: all 0.4s;
+    background: transparent;
+  }
+  nav.scrolled {
+    background: rgba(250,248,245,0.97);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--light-gray);
+    padding: 14px 60px;
+    box-shadow: 0 2px 40px rgba(0,0,0,0.06);
+  }
+  .logo { display: flex; flex-direction: column; line-height: 1; cursor: pointer; }
+  .logo-main {
+    font-family: var(--font-display);
+    font-size: 26px; font-weight: 300; letter-spacing: 6px;
+    color: var(--cream); transition: color 0.4s;
+  }
+  nav.scrolled .logo-main { color: var(--charcoal); }
+  .logo-sub { font-size: 9px; letter-spacing: 5px; color: var(--gold); margin-top: 2px; font-weight: 500; }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
+  .nav-link {
+    color: rgba(250,248,245,0.85); text-decoration: none;
+    font-size: 11px; letter-spacing: 2.5px; font-weight: 500;
+    transition: color 0.3s; cursor: pointer;
+  }
+  nav.scrolled .nav-link { color: var(--text-mid); }
+  .nav-link:hover { color: var(--gold); }
+  .nav-cta {
+    background: var(--gold); color: var(--dark);
+    padding: 10px 24px; font-size: 10px; letter-spacing: 2.5px;
+    font-weight: 600; border: none; cursor: pointer;
+    transition: all 0.3s; font-family: var(--font-body);
+  }
+  .nav-cta:hover { background: var(--deep-gold); color: var(--cream); }
+
+  /* ── HERO ── */
+  #hero {
+    height: 100vh; min-height: 720px;
+    background: var(--charcoal);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0D0B09 0%, #1A1714 55%, #231E19 100%);
+  }
+  .hero-video-bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.18;
+    mix-blend-mode: luminosity;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero-texture {
+    position: absolute; inset: 0; opacity: 0.04;
+    background-image: repeating-linear-gradient(45deg, var(--champagne) 0, var(--champagne) 1px, transparent 0, transparent 50%);
+    background-size: 20px 20px;
+  }
+  .hero-accent {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 50%;
+    background: linear-gradient(to left, rgba(184,150,90,0.07) 0%, transparent 100%);
+  }
+  .hero-line {
+    position: absolute; left: 60px; top: 50%; transform: translateY(-60px);
+    width: 1px; height: 120px;
+    background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+    opacity: 0.5;
+  }
+  .hero-img-wrap {
+    position: absolute; right: 7%; bottom: 0;
+    width: 400px; height: 92%;
+    overflow: hidden;
+  }
+  .hero-img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top center;
+    filter: grayscale(15%) contrast(1.05);
+    opacity: 0.9;
+  }
+  .hero-img-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, var(--charcoal) 0%, rgba(13,11,9,0.15) 50%, transparent 70%),
+                linear-gradient(to top, var(--charcoal) 0%, transparent 25%);
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 0 60px;
+    max-width: 660px;
+    margin-top: -40px;
+    animation: heroFadeIn 1.2s ease both;
+  }
+  @keyframes heroFadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-eyebrow {
+    font-size: 10px; letter-spacing: 5px; color: var(--gold);
+    font-weight: 500; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--gold); flex-shrink: 0; }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(54px, 6vw, 82px);
+    font-weight: 300; line-height: 1.03;
+    color: var(--cream); margin-bottom: 16px;
+  }
+  .hero-title em { font-style: italic; color: var(--champagne); }
+  .hero-subtitle {
+    font-family: var(--font-display);
+    font-size: 19px; font-weight: 300; font-style: italic;
+    color: var(--soft-rose); margin-bottom: 24px;
+    letter-spacing: 0.5px;
+  }
+  .hero-divider {
+    width: 48px; height: 1px; background: rgba(212,184,150,0.3);
+    margin-bottom: 24px;
+  }
+  .hero-desc {
+    color: rgba(250,248,245,0.52); font-size: 12px;
+    line-height: 1.95; max-width: 400px; margin-bottom: 48px;
+    letter-spacing: 0.5px;
+  }
+  .hero-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--gold); color: var(--dark);
+    padding: 15px 40px; font-size: 11px; letter-spacing: 3px;
+    font-weight: 600; border: none; cursor: pointer;
+    transition: all 0.3s; font-family: var(--font-body);
+    text-transform: uppercase;
+  }
+  .btn-primary:hover { background: var(--champagne); transform: translateY(-2px); }
+  .btn-outline {
+    background: transparent; color: rgba(250,248,245,0.75);
+    padding: 15px 36px; font-size: 11px; letter-spacing: 3px;
+    font-weight: 400; border: 1px solid rgba(250,248,245,0.2);
+    cursor: pointer; transition: all 0.3s; font-family: var(--font-body);
+    text-transform: uppercase;
+  }
+  .btn-outline:hover { border-color: var(--champagne); color: var(--champagne); }
+  .hero-trust {
+    position: absolute; bottom: 52px; right: 60px;
+    display: flex; gap: 44px; z-index: 3;
+  }
+  .trust-item { text-align: center; }
+  .trust-num {
+    font-family: var(--font-display); font-size: 38px;
+    font-weight: 300; color: var(--gold); line-height: 1;
+  }
+  .trust-label { font-size: 9px; letter-spacing: 3px; color: rgba(250,248,245,0.4); margin-top: 5px; text-transform: uppercase; }
+  .scroll-hint {
+    position: absolute; bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: rgba(250,248,245,0.25); font-size: 9px; letter-spacing: 3px;
+    animation: bounce 2s infinite;
+  }
+  .scroll-hint::after {
+    content: ''; width: 1px; height: 44px;
+    background: linear-gradient(to bottom, rgba(250,248,245,0.25), transparent);
+  }
+  @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
+
+  /* ── SECTIONS COMMON ── */
+  section { padding: 100px 60px; }
+  .section-label {
+    font-size: 9px; letter-spacing: 5px; color: var(--gold);
+    font-weight: 500; text-transform: uppercase; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-label::before { content: ''; width: 40px; height: 1px; background: var(--gold); }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 300; line-height: 1.1; color: var(--text-dark);
+  }
+  .section-title em { font-style: italic; color: var(--deep-gold); }
+
+  /* ── DOCTOR SECTION (home) ── */
+  #doctor-section {
+    background: var(--charcoal);
+    padding: 0;
+  }
+  .doctor-section-inner {
+    display: grid; grid-template-columns: 420px 1fr;
+    min-height: 600px;
+  }
+  .doctor-img-col {
+    position: relative; overflow: hidden;
+  }
+  .doctor-img-col img {
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: top center;
+    filter: grayscale(12%) contrast(1.04);
+    display: block;
+  }
+  .doctor-img-border {
+    position: absolute; inset: 20px;
+    border: 1px solid rgba(212,184,150,0.15);
+    pointer-events: none;
+  }
+  .doctor-info-col {
+    padding: 80px 80px 80px 60px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .doctor-name-title {
+    font-family: var(--font-display);
+    font-size: clamp(44px, 4.5vw, 62px);
+    font-weight: 300; line-height: 1.06;
+    color: var(--cream); margin-bottom: 32px;
+  }
+  .doctor-name-title em { font-style: italic; color: var(--champagne); }
+  .doctor-creds-list {
+    display: flex; flex-direction: column; gap: 14px;
+    margin-bottom: 44px;
+  }
+  .doctor-creds-list .cred-item { color: rgba(250,248,245,0.6); }
+
+  /* ── ABOUT STRIP ── */
+  #about-strip {
+    background: var(--charcoal); padding: 80px 60px;
+    display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr;
+    gap: 0; align-items: center;
+  }
+  .strip-item { padding: 0 60px; text-align: center; }
+  .strip-divider { width: 1px; background: rgba(212,184,150,0.2); height: 80px; }
+  .strip-icon { font-size: 28px; margin-bottom: 16px; color: var(--gold); font-family: var(--font-display); }
+  .strip-title { font-family: var(--font-display); font-size: 20px; color: var(--cream); margin-bottom: 8px; }
+  .strip-desc { font-size: 11px; color: rgba(250,248,245,0.45); line-height: 1.8; }
+
+  /* ── SERVICES ── */
+  #services { background: var(--warm-white); }
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2px; margin-top: 60px;
+  }
+  .service-card {
+    background: var(--cream); padding: 48px 40px;
+    position: relative; overflow: hidden;
+    cursor: pointer; transition: all 0.4s;
+    border: 1px solid var(--light-gray);
+  }
+  .service-card::before {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 0; height: 2px; background: var(--gold);
+    transition: width 0.4s;
+  }
+  .service-card:hover::before { width: 100%; }
+  .service-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.08); }
+  .service-num {
+    font-family: var(--font-display); font-size: 48px;
+    color: var(--light-gray); font-weight: 300;
+    position: absolute; top: 20px; right: 30px; line-height: 1;
+  }
+  .service-cat { font-size: 9px; letter-spacing: 3px; color: var(--gold); margin-bottom: 20px; text-transform: uppercase; }
+  .service-name { font-family: var(--font-display); font-size: 26px; font-weight: 400; color: var(--text-dark); margin-bottom: 12px; line-height: 1.2; }
+  .service-desc { font-size: 12px; color: var(--text-light); line-height: 1.9; margin-bottom: 28px; }
+  .service-meta { display: flex; gap: 20px; align-items: center; font-size: 10px; color: var(--warm-gray); letter-spacing: 1px; }
+  .service-duration { color: var(--gold); }
+  .service-book {
+    margin-top: 24px; font-size: 10px; letter-spacing: 2.5px;
+    color: var(--charcoal); font-weight: 600; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+    background: none; border: none; cursor: pointer;
+    font-family: var(--font-body); padding: 0;
+    transition: color 0.3s;
+  }
+  .service-book:hover { color: var(--gold); }
+  .service-book::after { content: '→'; font-size: 14px; }
+
+  /* ── BEFORE/AFTER ── */
+  #before-after { background: var(--charcoal); }
+  #before-after .section-title { color: var(--cream); }
+  #before-after .section-label { color: var(--gold); }
+  .ba-layout {
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 3px;
+  }
+  .ba-card { position: relative; overflow: hidden; cursor: pointer; }
+  .ba-card.ba-main {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+    aspect-ratio: 2/3;
+  }
+  .ba-card.ba-secondary {
+    grid-column: 2 / 3;
+    aspect-ratio: 4/3;
+  }
+  .ba-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; filter: grayscale(20%); }
+  .ba-card:hover .ba-img { transform: scale(1.04); filter: grayscale(0%); }
+  .ba-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(13,11,9,0.88) 0%, transparent 50%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 28px;
+  }
+  .ba-tag { font-size: 9px; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; text-transform: uppercase; }
+  .ba-title { font-family: var(--font-display); font-size: 20px; color: var(--cream); font-weight: 300; }
+  .ba-card.ba-main .ba-title { font-size: 26px; }
+  .ba-badge {
+    position: absolute; top: 20px; left: 20px;
+    background: rgba(13,11,9,0.8); border: 1px solid rgba(212,184,150,0.3);
+    padding: 4px 12px; font-size: 9px; letter-spacing: 2px;
+    color: var(--champagne); text-transform: uppercase;
+  }
+
+  /* ── TESTIMONIALS ── */
+  #testimonials { background: var(--cream); }
+  .testimonials-wrap {
+    margin-top: 60px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .review-card {
+    background: var(--warm-white); padding: 40px;
+    border: 1px solid var(--light-gray);
+    position: relative;
+  }
+  .review-quote {
+    font-family: var(--font-display); font-size: 60px;
+    color: var(--light-gray); line-height: 0.5;
+    position: absolute; top: 30px; right: 30px;
+  }
+  .stars { color: var(--gold); font-size: 12px; margin-bottom: 20px; letter-spacing: 3px; }
+  .review-text {
+    font-family: var(--font-display); font-size: 17px;
+    line-height: 1.7; color: var(--text-dark);
+    font-style: italic; margin-bottom: 28px;
+  }
+  .reviewer { display: flex; align-items: center; gap: 14px; }
+  .reviewer-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--light-gray); display: flex; align-items: center;
+    justify-content: center; font-family: var(--font-display);
+    font-size: 18px; color: var(--gold);
+    flex-shrink: 0;
+  }
+  .reviewer-name { font-size: 12px; font-weight: 600; color: var(--text-dark); }
+  .reviewer-sub { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+
+  /* ── BOOKING MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    background: rgba(13,11,9,0.85);
+    backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--cream); width: 100%; max-width: 680px;
+    max-height: 90vh; overflow-y: auto;
+    position: relative; animation: modalIn 0.4s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-close {
+    position: absolute; top: 20px; right: 24px;
+    background: none; border: none; font-size: 24px;
+    cursor: pointer; color: var(--warm-gray); z-index: 1;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--charcoal); }
+  .modal-header { background: var(--charcoal); padding: 40px 48px 32px; }
+  .modal-label { font-size: 9px; letter-spacing: 4px; color: var(--gold); margin-bottom: 10px; text-transform: uppercase; }
+  .modal-title { font-family: var(--font-display); font-size: 32px; color: var(--cream); font-weight: 300; }
+  .modal-body { padding: 40px 48px; }
+  .booking-steps {
+    display: flex; gap: 0; margin-bottom: 36px;
+    border-bottom: 1px solid var(--light-gray);
+  }
+  .step {
+    flex: 1; padding-bottom: 14px;
+    font-size: 9px; letter-spacing: 2px; text-align: center;
+    color: var(--text-light); text-transform: uppercase;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.3s;
+  }
+  .step.active { color: var(--gold); border-color: var(--gold); }
+  .step.done { color: var(--champagne); }
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+  .form-row { margin-bottom: 20px; }
+  .form-label { display: block; font-size: 10px; letter-spacing: 2px; color: var(--warm-gray); margin-bottom: 8px; text-transform: uppercase; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 12px 16px;
+    border: 1px solid var(--light-gray); background: var(--warm-white);
+    font-family: var(--font-body); font-size: 13px;
+    color: var(--text-dark); outline: none;
+    transition: border-color 0.3s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); }
+  .form-textarea { resize: vertical; min-height: 100px; }
+  .service-select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .service-option {
+    border: 1px solid var(--light-gray); padding: 16px;
+    cursor: pointer; transition: all 0.2s;
+    background: var(--warm-white);
+  }
+  .service-option:hover, .service-option.selected { border-color: var(--gold); background: rgba(184,150,90,0.05); }
+  .service-option-name { font-size: 13px; color: var(--text-dark); margin-bottom: 4px; }
+  .service-option-dur { font-size: 10px; color: var(--gold); }
+  .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+  .time-slot {
+    border: 1px solid var(--light-gray); padding: 10px;
+    text-align: center; cursor: pointer; transition: all 0.2s;
+    font-size: 12px; color: var(--text-dark);
+    background: var(--warm-white);
+  }
+  .time-slot:hover, .time-slot.selected { border-color: var(--gold); background: rgba(184,150,90,0.08); color: var(--gold); }
+  .time-slot.booked { background: var(--light-gray); color: var(--text-light); cursor: not-allowed; border-color: transparent; text-decoration: line-through; opacity: 0.5; }
+  .date-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
+  .date-cell {
+    aspect-ratio: 1; display: flex; align-items: center;
+    justify-content: center; cursor: pointer;
+    font-size: 12px; border: 1px solid transparent;
+    transition: all 0.2s; border-radius: 2px;
+  }
+  .date-cell:hover { border-color: var(--gold); color: var(--gold); }
+  .date-cell.selected { background: var(--gold); color: var(--dark); }
+  .date-cell.past { opacity: 0.3; cursor: not-allowed; }
+  .date-cell.today { font-weight: 700; }
+  .day-header { font-size: 9px; letter-spacing: 1px; color: var(--text-light); text-align: center; padding: 4px 0; }
+  .modal-nav { display: flex; justify-content: space-between; margin-top: 32px; }
+  .btn-step {
+    background: var(--gold); color: var(--dark);
+    padding: 12px 32px; font-size: 10px; letter-spacing: 2.5px;
+    font-weight: 600; border: none; cursor: pointer;
+    transition: all 0.3s; font-family: var(--font-body);
+    text-transform: uppercase;
+  }
+  .btn-step:hover { background: var(--deep-gold); color: var(--cream); }
+  .btn-step.secondary {
+    background: transparent; color: var(--warm-gray);
+    border: 1px solid var(--light-gray);
+  }
+  .btn-step.secondary:hover { border-color: var(--warm-gray); color: var(--charcoal); background: transparent; }
+  .booking-summary { background: var(--warm-white); border: 1px solid var(--light-gray); padding: 24px; margin-bottom: 24px; }
+  .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--light-gray); font-size: 12px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-key { color: var(--text-light); }
+  .summary-val { color: var(--text-dark); font-weight: 500; }
+
+  /* ── FAQ ── */
+  #faq { background: var(--warm-white); }
+  .faq-list { margin-top: 60px; max-width: 800px; }
+  .faq-item { border-bottom: 1px solid var(--light-gray); padding: 24px 0; cursor: pointer; }
+  .faq-q {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-display); font-size: 20px;
+    color: var(--text-dark); font-weight: 400;
+  }
+  .faq-toggle { font-size: 20px; color: var(--gold); transition: transform 0.3s; flex-shrink: 0; margin-left: 20px; }
+  .faq-item.open .faq-toggle { transform: rotate(45deg); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; font-size: 13px; color: var(--text-light); line-height: 1.9; }
+  .faq-a-inner { padding-top: 16px; }
+  .faq-item.open .faq-a { max-height: 300px; }
+
+  /* ── CONTACT ── */
+  #contact { background: var(--charcoal); }
+  #contact .section-title { color: var(--cream); }
+  #contact .section-label { color: var(--gold); }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 60px; align-items: start; }
+  .contact-item { padding: 24px 0; border-bottom: 1px solid rgba(212,184,150,0.1); display: flex; gap: 20px; align-items: flex-start; }
+  .contact-icon { font-size: 18px; color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+  .contact-key { font-size: 10px; letter-spacing: 2px; color: var(--champagne); margin-bottom: 6px; }
+  .contact-val { font-size: 13px; color: rgba(250,248,245,0.65); line-height: 1.7; }
+  .contact-form .form-input, .contact-form .form-textarea, .contact-form .form-select {
+    background: rgba(255,255,255,0.04); border-color: rgba(212,184,150,0.15); color: var(--cream);
+  }
+  .contact-form .form-input::placeholder, .contact-form .form-textarea::placeholder { color: rgba(250,248,245,0.25); }
+  .contact-form .form-label { color: var(--champagne); }
+  .contact-form .form-input:focus { border-color: var(--gold); }
+  .whatsapp-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #25D366; color: white;
+    padding: 14px 32px; font-size: 11px; letter-spacing: 2px;
+    font-weight: 600; border: none; cursor: pointer;
+    transition: all 0.3s; font-family: var(--font-body);
+    text-decoration: none; text-transform: uppercase;
+    margin-top: 20px;
+  }
+  .whatsapp-btn:hover { background: #1BA854; transform: translateY(-2px); }
+
+  /* ── ADMIN ── */
+  #admin-section { display: none; }
+  .admin-login {
+    min-height: 100vh; background: var(--charcoal);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .login-box { background: var(--cream); width: 400px; padding: 60px 48px; }
+  .login-logo { font-family: var(--font-display); font-size: 24px; letter-spacing: 4px; color: var(--charcoal); text-align: center; margin-bottom: 4px; }
+  .login-sub { font-size: 9px; letter-spacing: 4px; color: var(--gold); text-align: center; margin-bottom: 40px; text-transform: uppercase; }
+  .login-title { font-family: var(--font-display); font-size: 22px; margin-bottom: 28px; color: var(--text-dark); }
+  .login-error { background: #FDE8E8; border: 1px solid #E8B4B4; padding: 10px 16px; font-size: 12px; color: #C45A5A; margin-bottom: 16px; display: none; }
+
+  /* ── ADMIN DASHBOARD ── */
+  .admin-dashboard { min-height: 100vh; background: #F0EDE8; display: grid; grid-template-columns: 240px 1fr; }
+  .admin-sidebar {
+    background: var(--charcoal); padding: 0;
+    display: flex; flex-direction: column;
+    position: fixed; left: 0; top: 0; bottom: 0; width: 240px;
+    z-index: 100; overflow-y: auto;
+  }
+  .sidebar-logo { padding: 32px 28px; border-bottom: 1px solid rgba(212,184,150,0.1); }
+  .sidebar-logo-text { font-family: var(--font-display); font-size: 20px; letter-spacing: 4px; color: var(--cream); }
+  .sidebar-logo-sub { font-size: 8px; letter-spacing: 3px; color: var(--gold); margin-top: 4px; }
+  .sidebar-nav { padding: 20px 0; flex: 1; }
+  .sidebar-section { font-size: 8px; letter-spacing: 3px; color: rgba(212,184,150,0.4); padding: 16px 28px 8px; text-transform: uppercase; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 28px; color: rgba(250,248,245,0.55);
+    cursor: pointer; transition: all 0.2s;
+    font-size: 12px; letter-spacing: 0.5px;
+    border-left: 2px solid transparent;
+  }
+  .sidebar-item:hover { color: var(--cream); background: rgba(255,255,255,0.03); }
+  .sidebar-item.active { color: var(--gold); border-color: var(--gold); background: rgba(184,150,90,0.08); }
+  .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
+  .sidebar-footer { padding: 20px 28px; border-top: 1px solid rgba(212,184,150,0.1); }
+  .logout-btn {
+    background: none; border: 1px solid rgba(212,184,150,0.2);
+    color: rgba(250,248,245,0.5); padding: 10px 20px;
+    font-size: 10px; letter-spacing: 2px; cursor: pointer;
+    width: 100%; font-family: var(--font-body);
+    transition: all 0.2s; text-transform: uppercase;
+  }
+  .logout-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .admin-main { margin-left: 240px; padding: 40px; }
+  .admin-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+  .admin-page-title { font-family: var(--font-display); font-size: 32px; color: var(--charcoal); font-weight: 300; }
+  .admin-date { font-size: 12px; color: var(--warm-gray); }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--cream); border: 1px solid var(--light-gray); padding: 28px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold); }
+  .stat-num { font-family: var(--font-display); font-size: 42px; color: var(--charcoal); font-weight: 300; line-height: 1; margin-bottom: 6px; }
+  .stat-label { font-size: 10px; letter-spacing: 1.5px; color: var(--warm-gray); text-transform: uppercase; }
+  .stat-change { font-size: 11px; color: #6BAF8A; margin-top: 8px; }
+  .admin-card { background: var(--cream); border: 1px solid var(--light-gray); margin-bottom: 24px; }
+  .admin-card-header { padding: 20px 28px; border-bottom: 1px solid var(--light-gray); display: flex; justify-content: space-between; align-items: center; }
+  .admin-card-title { font-family: var(--font-display); font-size: 20px; color: var(--charcoal); }
+  .admin-card-body { padding: 0; }
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th { padding: 12px 24px; text-align: left; font-size: 9px; letter-spacing: 2px; color: var(--warm-gray); background: var(--warm-white); text-transform: uppercase; border-bottom: 1px solid var(--light-gray); font-weight: 500; }
+  .data-table td { padding: 16px 24px; font-size: 12px; color: var(--text-dark); border-bottom: 1px solid rgba(232,226,218,0.5); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(184,150,90,0.03); }
+  .status-badge { display: inline-block; padding: 3px 10px; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; border-radius: 2px; }
+  .status-pending { background: #FEF3CD; color: #B8860B; }
+  .status-confirmed { background: #D1ECDF; color: #1D6A3C; }
+  .status-completed { background: #D0E8F4; color: #1A5F80; }
+  .status-cancelled { background: #F8D7DA; color: #8B2020; }
+  .action-btn { background: none; border: 1px solid var(--light-gray); padding: 5px 12px; font-size: 10px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; margin-right: 4px; color: var(--text-mid); }
+  .action-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .action-btn.confirm { border-color: #6BAF8A; color: #6BAF8A; }
+  .action-btn.cancel { border-color: #C47A7A; color: #C47A7A; }
+  .search-bar { display: flex; gap: 12px; margin-bottom: 20px; }
+  .search-input { flex: 1; padding: 10px 16px; border: 1px solid var(--light-gray); background: var(--warm-white); font-family: var(--font-body); font-size: 13px; color: var(--text-dark); outline: none; }
+  .search-input:focus { border-color: var(--gold); }
+  .filter-select { padding: 10px 16px; border: 1px solid var(--light-gray); background: var(--warm-white); font-family: var(--font-body); font-size: 12px; color: var(--text-dark); outline: none; cursor: pointer; }
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+  .service-manage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 24px; }
+  .service-manage-card { border: 1px solid var(--light-gray); padding: 20px; background: var(--warm-white); }
+  .service-manage-name { font-family: var(--font-display); font-size: 18px; color: var(--charcoal); margin-bottom: 8px; }
+  .service-manage-desc { font-size: 11px; color: var(--text-light); margin-bottom: 16px; }
+  .service-manage-actions { display: flex; gap: 8px; }
+  .add-service-btn { background: var(--gold); color: var(--dark); padding: 10px 24px; font-size: 10px; letter-spacing: 2px; border: none; cursor: pointer; font-family: var(--font-body); text-transform: uppercase; font-weight: 600; }
+
+  /* ── FOOTER ── */
+  footer { background: var(--dark); padding: 80px 60px 40px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 60px; }
+  .footer-logo { font-family: var(--font-display); font-size: 28px; letter-spacing: 6px; color: var(--cream); margin-bottom: 4px; }
+  .footer-logo-sub { font-size: 9px; letter-spacing: 4px; color: var(--gold); margin-bottom: 20px; }
+  .footer-about { font-size: 12px; color: rgba(250,248,245,0.35); line-height: 1.9; max-width: 280px; }
+  .footer-col-title { font-size: 10px; letter-spacing: 3px; color: var(--champagne); margin-bottom: 20px; text-transform: uppercase; }
+  .footer-link { display: block; font-size: 12px; color: rgba(250,248,245,0.4); text-decoration: none; margin-bottom: 10px; cursor: pointer; transition: color 0.2s; letter-spacing: 0.3px; }
+  .footer-link:hover { color: var(--gold); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: rgba(250,248,245,0.2); letter-spacing: 1px; }
+  .footer-social { display: flex; gap: 16px; }
+  .social-link { width: 36px; height: 36px; border: 1px solid rgba(212,184,150,0.15); display: flex; align-items: center; justify-content: center; color: rgba(250,248,245,0.3); text-decoration: none; font-size: 14px; transition: all 0.3s; cursor: pointer; }
+  .social-link:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── FLOATING WHATSAPP ── */
+  .whatsapp-float {
+    position: fixed; bottom: 30px; right: 30px; z-index: 500;
+    width: 56px; height: 56px; background: #25D366;
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+    cursor: pointer; transition: all 0.3s; text-decoration: none;
+    font-size: 24px;
+  }
+  .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(37,211,102,0.5); }
+
+  /* ── HAMBURGER MENU ── */
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px;
+    background: none; border: none; cursor: pointer; padding: 4px;
+  }
+  .hamburger span {
+    display: block; width: 22px; height: 1.5px;
+    background: var(--cream); transition: all 0.3s;
+  }
+  nav.scrolled .hamburger span { background: var(--charcoal); }
+  .mobile-menu {
+    display: none; position: fixed; inset: 0; z-index: 998;
+    background: var(--charcoal); padding: 100px 40px 40px;
+    flex-direction: column; gap: 0;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu .nav-link {
+    display: block; padding: 18px 0;
+    border-bottom: 1px solid rgba(212,184,150,0.1);
+    font-size: 13px; letter-spacing: 3px;
+    color: rgba(250,248,245,0.7);
+  }
+  .mobile-menu .nav-link:hover { color: var(--gold); }
+  .mobile-lang-switch {
+    display: flex; gap: 2px; margin-top: 32px;
+  }
+  .mobile-cta {
+    margin-top: 24px;
+    background: var(--gold); color: var(--dark);
+    padding: 14px; font-size: 11px; letter-spacing: 3px;
+    font-weight: 600; border: none; cursor: pointer;
+    font-family: var(--font-body); text-transform: uppercase;
+    width: 100%;
+  }
+
+  /* ── ARABIC ── */
+  body.rtl { direction: rtl; font-family: var(--font-arabic), var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body.rtl .section-label::before { display: none; }
+  body.rtl .section-label::after { content: ''; width: 40px; height: 1px; background: var(--gold); }
+  body.rtl .hero-content { padding: 0 80px 80px 60px; }
+  body.rtl .hero-img-wrap { right: auto; left: 8%; }
+  body.rtl .hero-img-overlay {
+    background: linear-gradient(to left, var(--charcoal) 0%, transparent 40%),
+                linear-gradient(to top, var(--charcoal) 0%, transparent 30%);
+  }
+  body.rtl .hero-trust { right: auto; left: 60px; }
+  body.rtl nav { flex-direction: row-reverse; }
+  body.rtl .nav-links { flex-direction: row-reverse; }
+  body.rtl .admin-sidebar { left: auto; right: 0; }
+  body.rtl .admin-main { margin-left: 0; margin-right: 240px; }
+  body.rtl .data-table th, body.rtl .data-table td { text-align: right; }
+  body.rtl .footer-grid { direction: rtl; }
+  body.rtl .service-book::after { content: '←'; }
+  body.rtl .service-book { flex-direction: row-reverse; }
+  body.rtl .section-label { flex-direction: row-reverse; }
+  body.rtl .hero-eyebrow { letter-spacing: 2px; }
+  body.rtl .contact-item { flex-direction: row; }
+  body.rtl .review-quote { left: 30px; right: auto; }
+  body.rtl .hero-line { left: auto; right: 60px; }
+  body.rtl .about-hero { direction: rtl; }
+  body.rtl .cred-item { flex-direction: row; }
+  body.rtl .modal-nav { flex-direction: row-reverse; }
+  body.rtl .booking-steps .step { letter-spacing: 1px; font-size: 10px; }
+  body.rtl .footer-about { direction: rtl; }
+  body.rtl .whatsapp-btn { flex-direction: row-reverse; }
+  body.rtl .strip-desc, body.rtl .hero-desc { line-height: 2.2; letter-spacing: 0; }
+  /* Arabic fonts — improved rendering */
+  body.rtl h1, body.rtl h2, body.rtl .hero-title,
+  body.rtl .section-title, body.rtl .about-hero-title,
+  body.rtl .strip-title, body.rtl .review-text,
+  body.rtl .faq-q, body.rtl .modal-title, body.rtl .about-bio p {
+    font-family: var(--font-arabic), serif;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
+  body.rtl p, body.rtl li, body.rtl span, body.rtl label, body.rtl input, body.rtl select, body.rtl button {
+    font-family: var(--font-arabic), var(--font-body);
+  }
+
+  /* ── SCROLL PROGRESS ── */
+  .scroll-progress {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: var(--gold); z-index: 9999;
+    width: 0%; transition: width 0.1s linear;
+  }
+
+  /* ── MOBILE FLOATING ACTION BAR ── */
+  .mobile-fab {
+    display: none;
+  }
+  @media (max-width: 768px) {
+    .mobile-fab {
+      display: flex;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 1200;
+      background: var(--charcoal);
+      border-top: 1px solid rgba(212,184,150,0.15);
+      padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.25);
+    }
+    .fab-btn {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+      background: none; border: none; cursor: pointer;
+      font-family: var(--font-body); padding: 4px 6px;
+      text-decoration: none; transition: opacity 0.2s;
+      position: relative;
+    }
+    .fab-btn:active { opacity: 0.7; }
+    .fab-btn + .fab-btn { border-left: 1px solid rgba(212,184,150,0.1); }
+    .fab-icon {
+      font-size: 20px; line-height: 1;
+    }
+    .fab-label {
+      font-size: 9px; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(250,248,245,0.6);
+      font-weight: 500;
+    }
+    .fab-btn.fab-primary .fab-icon { color: var(--gold); }
+    .fab-btn.fab-primary .fab-label { color: var(--champagne); }
+    .fab-btn.fab-call .fab-icon { color: #7ECBA1; }
+    .fab-btn.fab-call .fab-label { color: rgba(126,203,161,0.8); }
+    .fab-btn.fab-wa .fab-icon { color: #25D366; }
+    .fab-btn.fab-wa .fab-label { color: rgba(37,211,102,0.8); }
+    /* push body up so FAB doesn't cover content */
+    body { padding-bottom: 70px; }
+    /* hide the standalone WhatsApp float on mobile — FAB covers it */
+    .whatsapp-float { display: none !important; }
+  }
+
+  /* ── BEFORE/AFTER COMPARISON SLIDER ── */
+  .ba-slider-wrap {
+    position: relative; aspect-ratio: 3/4;
+    overflow: hidden; cursor: col-resize; user-select: none;
+    touch-action: pinch-zoom;
+  }
+  .ba-slider-wrap .ba-img-after {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .ba-slider-wrap .ba-img-before {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    clip-path: inset(0 50% 0 0);
+    transition: clip-path 0.01s;
+  }
+  .ba-slider-handle {
+    position: absolute; top: 0; bottom: 0;
+    left: 50%; transform: translateX(-50%);
+    width: 2px; background: rgba(250,248,245,0.9);
+    z-index: 5; pointer-events: none;
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+  }
+  .ba-slider-handle::before, .ba-slider-handle::after {
+    content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--cream); border: 2px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .ba-slider-handle::before { top: 50%; transform: translate(-50%, -50%); }
+  .ba-slider-handle::after { display: none; }
+  .ba-slider-arrows {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 6; pointer-events: none;
+    color: var(--gold); font-size: 13px; letter-spacing: 2px;
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(13,11,9,0.7); padding: 5px 10px;
+    border: 1px solid rgba(184,150,90,0.4);
+  }
+  .ba-label-pill {
+    position: absolute; bottom: 20px; z-index: 6;
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 4px 10px; pointer-events: none;
+    background: rgba(13,11,9,0.75); color: var(--champagne);
+    border: 1px solid rgba(212,184,150,0.3);
+  }
+  .ba-label-pill.before { left: 12px; }
+  .ba-label-pill.after  { right: 12px; }
+
+  @keyframes shakeX {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-6px); }
+    40%,80% { transform: translateX(6px); }
+  }
+
+  /* Mobile booking modal improvements */
+  @media (max-width: 600px) {
+    .modal { max-height: 95vh; border-radius: 12px 12px 0 0; }
+    .modal-header { padding: 28px 24px 20px; }
+    .modal-body { padding: 24px 20px; }
+    .modal-title { font-size: 24px; }
+    .service-select-grid { grid-template-columns: 1fr; }
+    .time-grid { grid-template-columns: repeat(3, 1fr); }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .booking-steps { overflow-x: auto; gap: 2px; }
+    .step { font-size: 8px; padding-bottom: 10px; }
+  }
+
+  /* ── BOOKING VALIDATION STATES ── */
+  .form-input.error, .form-select.error { border-color: #C47A7A; background: rgba(196,122,122,0.05); }
+  .field-error { font-size: 10px; color: #C47A7A; margin-top: 4px; letter-spacing: 0.5px; display: none; }
+  .field-error.show { display: block; }
+  /* Loading state on confirm button */
+  .btn-loading { opacity: 0.7; pointer-events: none; position: relative; }
+  .btn-loading::after {
+    content: ''; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.2); border-top-color: var(--dark);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+  /* Expired slot style */
+  .time-slot.expired { background: var(--light-gray); color: var(--text-light); cursor: not-allowed; border-color: transparent; opacity: 0.35; }
+  /* Booking success panel */
+  .booking-success {
+    text-align: center; padding: 40px 20px;
+    animation: modalIn 0.4s ease both;
+  }
+  .booking-success-icon { font-size: 52px; margin-bottom: 20px; }
+  .booking-success-title {
+    font-family: var(--font-display); font-size: 28px;
+    color: var(--text-dark); font-weight: 300; margin-bottom: 12px;
+  }
+  .booking-success-msg { font-size: 13px; color: var(--text-light); line-height: 1.8; margin-bottom: 28px; }
+  .booking-success-wa {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #25D366; color: white;
+    padding: 12px 28px; font-size: 11px; letter-spacing: 2px;
+    font-weight: 600; border: none; cursor: pointer;
+    font-family: var(--font-body); text-transform: uppercase;
+    text-decoration: none; margin-bottom: 12px; width: 100%;
+    justify-content: center;
+  }
+  .booking-success-wa:hover { background: #1BA854; }
+
+  /* ── IMAGE LAZY LOAD ── */
+  img { opacity: 0; transition: opacity 0.6s ease; }
+  img.loaded { opacity: 1; }
+  img.hero-img { opacity: 0.9; } /* hero always visible after load */
+
+  /* ── PREMIUM SERVICE CARD ── */
+  .service-card { transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+  .service-card:hover { box-shadow: 0 24px 64px rgba(0,0,0,0.1); }
+
+  /* ── SMOOTH REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.4,0,0.2,1); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── BOOKING FORM FOCUS RING ── */
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    box-shadow: 0 0 0 3px rgba(184,150,90,0.12);
+  }
+
+  /* ── IMPROVED STATUS BADGES ── */
+  .status-badge { border-radius: 2px; letter-spacing: 1px; }
+
+  /* ── DASHBOARD CARD HOVER ── */
+  .stat-card { transition: box-shadow 0.2s; }
+  .stat-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+  .page { display: none; }
+  .page.active { display: block; }
+  #page-home { display: block; }
+
+  /* ── ABOUT PAGE ── */
+  #about-page { background: var(--cream); }
+  .about-hero {
+    background: var(--charcoal); padding: 140px 60px 80px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .about-hero-img { aspect-ratio: 3/4; overflow: hidden; border: 1px solid rgba(212,184,150,0.2); }
+  .about-hero-img img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(10%); }
+  .about-hero-title { font-family: var(--font-display); font-size: clamp(44px, 5vw, 64px); color: var(--cream); font-weight: 300; line-height: 1.05; margin-bottom: 16px; }
+  .about-hero-title em { font-style: italic; color: var(--champagne); }
+  .about-creds { display: flex; flex-direction: column; gap: 12px; margin: 28px 0; }
+  .cred-item { display: flex; align-items: flex-start; gap: 14px; font-size: 12px; color: rgba(250,248,245,0.6); line-height: 1.6; }
+  .cred-bullet { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .about-bio { padding: 80px 60px; max-width: 820px; }
+  .about-bio p { font-family: var(--font-display); font-size: 20px; line-height: 1.8; color: var(--text-dark); margin-bottom: 24px; font-weight: 300; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 900px) {
+    nav { padding: 14px 20px; }
+    nav.scrolled { padding: 10px 20px; }
+    .nav-links { display: none; }
+    .lang-switch { display: none; }
+    .hamburger { display: flex; }
+    section { padding: 70px 20px; }
+    .hero-content { padding: 0 20px 70px; max-width: 100%; }
+    .hero-trust { display: none; }
+    .hero-img-wrap { width: 55%; right: 0; opacity: 0.7; }
+    body.rtl .hero-img-wrap { left: 0; right: auto; }
+    #about-strip { grid-template-columns: 1fr; padding: 60px 20px; }
+    .doctor-section-inner { grid-template-columns: 1fr; }
+    .doctor-img-col { height: 380px; }
+    .doctor-info-col { padding: 50px 20px; }
+    .strip-divider { display: none; }
+    .strip-item { padding: 24px 20px; border-bottom: 1px solid rgba(212,184,150,0.1); }
+    .services-grid { grid-template-columns: 1fr; gap: 1px; }
+    .ba-layout { grid-template-columns: 1fr; }
+    .ba-card.ba-main { grid-column: 1; grid-row: auto; aspect-ratio: 3/4; }
+    .ba-card.ba-secondary { grid-column: 1; aspect-ratio: 3/2; }
+    .testimonials-wrap { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+    footer { padding: 60px 20px 32px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .service-manage-grid { grid-template-columns: 1fr; }
+    .admin-sidebar { width: 200px; }
+    .admin-main { margin-left: 200px; padding: 20px; }
+    body.rtl .admin-main { margin-left: 0; margin-right: 200px; }
+    .modal-body { padding: 28px 24px; }
+    .modal-header { padding: 28px 24px 20px; }
+    .service-select-grid { grid-template-columns: 1fr; }
+    .time-grid { grid-template-columns: repeat(3, 1fr); }
+    .about-hero { grid-template-columns: 1fr; padding: 100px 20px 60px; gap: 40px; }
+    .about-bio { padding: 60px 20px; }
+    .review-card { padding: 28px 24px; }
+    .modal { max-height: 95vh; }
+    .hero-title { font-size: clamp(40px, 9vw, 64px); }
+    body.rtl .hero-content { padding: 0 20px 70px; }
+  }
+  @media (max-width: 480px) {
+    .ba-layout { grid-template-columns: 1fr; }
+    .booking-steps .step { font-size: 8px; letter-spacing: 0.5px; padding-bottom: 10px; }
+    .hero-img-wrap { display: none; }
+    .hero-desc { max-width: 100%; }
+    .date-row { gap: 2px; }
+    .date-cell { font-size: 11px; }
+    .modal-body { padding: 20px 16px; }
+    .modal-header { padding: 24px 20px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="scroll-progress"></div>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu" id="mobile-menu">
+  <a class="nav-link" onclick="closeMobileMenu();showPage('home')" id="m-nav-home">Home</a>
+  <a class="nav-link" onclick="closeMobileMenu();showPage('about')" id="m-nav-about">About</a>
+  <a class="nav-link" onclick="closeMobileMenu();showSection('services')" id="m-nav-services">Services</a>
+  <a class="nav-link" onclick="closeMobileMenu();showSection('before-after')" id="m-nav-ba">Before &amp; After</a>
+  <a class="nav-link" onclick="closeMobileMenu();showSection('testimonials')" id="m-nav-test">Reviews</a>
+  <a class="nav-link" onclick="closeMobileMenu();showSection('faq')" id="m-nav-faq">FAQ</a>
+  <a class="nav-link" onclick="closeMobileMenu();showSection('contact')" id="m-nav-contact">Contact</a>
+  <div class="mobile-lang-switch">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ar')" style="font-family:var(--font-arabic)">ع</button>
+  </div>
+  <button class="mobile-cta" onclick="closeMobileMenu();openBooking()" id="m-nav-book">Book Now</button>
+</div>
+
+<!-- Nav -->
+<nav id="main-nav">
+  <div class="logo" onclick="showPage('home')">
+    <div class="logo-main" id="logo-text">REJOV</div>
+    <div class="logo-sub" id="logo-sub">DUAL EXPERTISE IN AESTHETICS</div>
+  </div>
+  <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links">
+    <a class="nav-link" onclick="showPage('home')" id="nav-home">Home</a>
+    <a class="nav-link" onclick="showPage('about')" id="nav-about">About</a>
+    <a class="nav-link" onclick="showSection('services')" id="nav-services">Services</a>
+    <a class="nav-link" onclick="showSection('before-after')" id="nav-ba">Before &amp; After</a>
+    <a class="nav-link" onclick="showPage('home'); setTimeout(()=>showSection('testimonials'),100)" id="nav-test">Reviews</a>
+    <a class="nav-link" onclick="showSection('faq')" id="nav-faq">FAQ</a>
+    <a class="nav-link" onclick="showSection('contact')" id="nav-contact">Contact</a>
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ar')" style="font-family:var(--font-arabic)">ع</button>
+    </div>
+    <button class="nav-cta" onclick="openBooking()" id="nav-book">Book Now</button>
+  </div>
+</nav>
+
+<!-- ══ MAIN SITE ══ -->
+<div id="site-main">
+
+  <!-- HOME PAGE -->
+  <div id="page-home" class="page active">
+
+    <!-- Hero -->
+    <section id="hero">
+      <div class="hero-bg"></div>
+      <video class="hero-video-bg" autoplay muted loop playsinline preload="none">
+        <source src="assets/video/hero.mp4" type="video/mp4">
+      </video>
+      <div class="hero-texture"></div>
+      <div class="hero-accent"></div>
+      <div class="hero-line"></div>
+      <div class="hero-img-wrap">
+        <img src="assets/images/IMG_2386.jpeg" alt="Dr. Samar Yehia" class="hero-img" loading="eager" decoding="async" fetchpriority="high">
+        <div class="hero-img-overlay"></div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-eyebrow" id="hero-eyebrow">INJECTABLES · SKIN · BEAUTY</div>
+        <h1 class="hero-title" id="hero-title">The Art of<br><em>Natural Beauty</em></h1>
+        <div class="hero-subtitle" id="hero-sub">Natural refinement &amp; bold trends</div>
+        <div class="hero-divider"></div>
+        <p class="hero-desc" id="hero-desc">Dual expertise in aesthetics — where precision science meets artistry. Specializing in injectables, advanced skin, and beauty treatments, every result uniquely designed for you.</p>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="openBooking()" id="hero-cta1">Book Consultation</button>
+          <button class="btn-outline" onclick="document.getElementById('doctor-section').scrollIntoView({behavior:'smooth'})" id="hero-cta2">Meet Dr. Samar</button>
+        </div>
+      </div>
+      <div class="hero-trust" id="hero-trust">
+        <div class="trust-item">
+          <div class="trust-num">1200+</div>
+          <div class="trust-label" id="trust1">Patients Treated</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-num">8+</div>
+          <div class="trust-label" id="trust2">Years Experience</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-num">98%</div>
+          <div class="trust-label" id="trust3">Satisfaction Rate</div>
+        </div>
+      </div>
+      <div class="scroll-hint" id="scroll-hint">SCROLL</div>
+    </section>
+
+    <!-- Doctor Section -->
+    <section id="doctor-section">
+      <div class="doctor-section-inner">
+        <div class="doctor-img-col">
+          <img src="assets/images/IMG_2386.jpeg" alt="Dr. Samar Yehia" loading="lazy" decoding="async">
+          <div class="doctor-img-border"></div>
+        </div>
+        <div class="doctor-info-col">
+          <div class="section-label" id="doctor-label-home">The Doctor</div>
+          <h2 class="doctor-name-title" id="doctor-name-home">Dr. Samar<br><em>Yehia</em></h2>
+          <div class="doctor-creds-list" id="doctor-creds-home">
+            <div class="cred-item"><div class="cred-bullet"></div>Board Certified Aesthetic Medicine Physician</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Diamond Lips Technique Creator</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Advanced Injectable &amp; Filler Specialist</div>
+            <div class="cred-item"><div class="cred-bullet"></div>International Training in Facial Anatomy</div>
+            <div class="cred-item"><div class="cred-bullet"></div>8+ Years Clinical Experience</div>
+          </div>
+          <button class="btn-primary" onclick="openBooking()" id="doctor-cta-home">Book a Consultation</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Strip -->
+    <div id="about-strip">
+      <div class="strip-item">
+        <div class="strip-icon">◇</div>
+        <div class="strip-title" id="strip1-t">Diamond Lips Technique</div>
+        <div class="strip-desc" id="strip1-d">Proprietary lip augmentation method ensuring volume, contour, and projection perfectly balanced with your smile design.</div>
+      </div>
+      <div class="strip-divider"></div>
+      <div class="strip-item">
+        <div class="strip-icon">✦</div>
+        <div class="strip-title" id="strip2-t">Board Certified Physician</div>
+        <div class="strip-desc" id="strip2-d">Internationally trained aesthetic medicine specialist with advanced certification in facial anatomy and injectables.</div>
+      </div>
+      <div class="strip-divider"></div>
+      <div class="strip-item">
+        <div class="strip-icon">⬡</div>
+        <div class="strip-title" id="strip3-t">Personalized Treatment</div>
+        <div class="strip-desc" id="strip3-d">Every treatment plan is uniquely crafted to enhance your natural features — no cookie-cutter results.</div>
+      </div>
+    </div>
+
+    <!-- Services -->
+    <section id="services">
+      <div class="section-label" id="sec-label-services">Our Services</div>
+      <h2 class="section-title" id="sec-title-services">Treatments<br><em>Crafted for You</em></h2>
+      <div class="services-grid" id="services-grid"></div>
+    </section>
+
+    <!-- Before After -->
+    <section id="before-after">
+      <div class="section-label" id="sec-label-ba">Results Gallery</div>
+      <h2 class="section-title" id="sec-title-ba">Before &amp; <em>After</em></h2>
+      <div class="ba-layout" id="ba-grid"></div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials">
+      <div class="section-label" id="sec-label-test">Patient Stories</div>
+      <h2 class="section-title" id="sec-title-test">What Our<br><em>Patients Say</em></h2>
+      <div class="testimonials-wrap" id="testimonials-grid"></div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="section-label" id="sec-label-faq">Common Questions</div>
+      <h2 class="section-title" id="sec-title-faq">Frequently Asked<br><em>Questions</em></h2>
+      <div class="faq-list" id="faq-list"></div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+      <div class="section-label" id="sec-label-contact">Get In Touch</div>
+      <h2 class="section-title" id="sec-title-contact">Book Your<br><em>Consultation</em></h2>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="contact-icon">◎</div>
+            <div>
+              <div class="contact-key" id="contact-loc-k">Location</div>
+              <div class="contact-val" id="contact-loc-v">Park St, Sheikh Zayed<br>Cairo, Egypt</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">◷</div>
+            <div>
+              <div class="contact-key" id="contact-hrs-k">Working Hours</div>
+              <div class="contact-val" id="contact-hrs-v">Sunday – Thursday: 10:00 AM – 8:00 PM<br>Saturday: 10:00 AM – 4:00 PM</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">✆</div>
+            <div>
+              <div class="contact-key" id="contact-ph-k">WhatsApp &amp; Calls</div>
+              <div class="contact-val">01036363722</div>
+            </div>
+          </div>
+          <a href="https://wa.me/201036363722" class="whatsapp-btn" target="_blank">
+            <span>✉</span> <span id="wa-btn-text">Message on WhatsApp</span>
+          </a>
+        </div>
+        <div class="contact-form">
+          <div class="form-row">
+            <label class="form-label" id="cf-name-l">Full Name</label>
+            <input type="text" class="form-input" id="cf-name" placeholder="Your full name">
+          </div>
+          <div class="form-row">
+            <label class="form-label" id="cf-phone-l">Phone Number</label>
+            <input type="text" class="form-input" id="cf-phone" placeholder="01036363722">
+          </div>
+          <div class="form-row">
+            <label class="form-label" id="cf-service-l">Service of Interest</label>
+            <select class="form-select" id="cf-service-sel">
+              <option value="">Select a service...</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label" id="cf-msg-l">Message</label>
+            <textarea class="form-textarea" id="cf-msg" placeholder="Tell us about your goals..."></textarea>
+          </div>
+          <button class="btn-primary" onclick="submitContact()" id="cf-submit">Send Message</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /page-home -->
+
+  <!-- ABOUT PAGE -->
+  <div id="page-about" class="page">
+    <div id="about-page">
+      <div class="about-hero">
+        <div class="about-hero-img">
+          <img src="assets/images/IMG_2386.jpeg" alt="Dr. Samar Yehia">
+        </div>
+        <div class="about-hero-content">
+          <div class="section-label" style="color:var(--gold)" id="about-label">The Doctor</div>
+          <h1 class="about-hero-title" id="about-title">Dr. Samar<br><em>Yehia</em></h1>
+          <div class="about-creds" id="about-creds">
+            <div class="cred-item"><div class="cred-bullet"></div>Board Certified Aesthetic Medicine Physician</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Diamond Lips Technique Creator</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Advanced Injectable &amp; Filler Specialist</div>
+            <div class="cred-item"><div class="cred-bullet"></div>International Training in Facial Anatomy</div>
+            <div class="cred-item"><div class="cred-bullet"></div>8+ Years Clinical Experience</div>
+          </div>
+          <button class="btn-primary" onclick="openBooking()" id="about-cta">Book a Consultation</button>
+        </div>
+      </div>
+      <div class="about-bio">
+        <div class="section-label" id="about-story-label">Her Story</div>
+        <div id="about-bio-text">
+          <p>Dr. Samar Yehia is a leading aesthetic medicine physician renowned for her signature Diamond Lips technique — a proprietary approach that ensures every lip augmentation is harmonized with the patient's unique smile architecture.</p>
+          <p>With over eight years of clinical experience and training from leading international institutions, Dr. Samar combines deep anatomical knowledge with an artist's eye to deliver results that look natural, feel beautiful, and last.</p>
+          <p>Her philosophy is simple: enhance, never overpower. Each treatment is a collaboration between doctor and patient — a conversation about confidence, identity, and the version of yourself you've always envisioned.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /site-main -->
+
+<!-- ══ ADMIN SECTION ══ -->
+<div id="admin-section">
+
+  <!-- Login -->
+  <div id="admin-login" class="admin-login">
+    <div class="login-box">
+      <div class="login-logo">DR. SAMAR</div>
+      <div class="login-sub">Admin Portal</div>
+      <h2 class="login-title" id="login-title">Sign In</h2>
+      <div class="login-error" id="login-error">Invalid credentials. Please try again.</div>
+      <div class="form-row">
+        <label class="form-label" id="login-user-l">Username</label>
+        <input type="text" class="form-input" id="login-user" placeholder="admin" value="admin">
+      </div>
+      <div class="form-row">
+        <label class="form-label" id="login-pass-l">Password</label>
+        <input type="password" class="form-input" id="login-pass" placeholder="••••••••" value="admin123">
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:8px" onclick="adminLogin()" id="login-btn">Access Dashboard</button>
+      <div style="text-align:center;margin-top:20px">
+        <a style="font-size:11px;color:var(--warm-gray);cursor:pointer;letter-spacing:1px" onclick="showSite()">← Return to Website</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="admin-dashboard" class="admin-dashboard" style="display:none">
+    <div class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-text">DR. SAMAR</div>
+        <div class="sidebar-logo-sub">Admin Dashboard</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <div class="sidebar-item active" onclick="showAdminPanel('overview')">
+          <span class="sidebar-icon">◈</span> <span id="sb-overview">Overview</span>
+        </div>
+        <div class="sidebar-item" onclick="showAdminPanel('appointments')">
+          <span class="sidebar-icon">◷</span> <span id="sb-appts">Appointments</span>
+        </div>
+        <div class="sidebar-item" onclick="showAdminPanel('patients')">
+          <span class="sidebar-icon">◎</span> <span id="sb-patients">Patients</span>
+        </div>
+        <div class="sidebar-section">Manage</div>
+        <div class="sidebar-item" onclick="showAdminPanel('services-admin')">
+          <span class="sidebar-icon">✦</span> <span id="sb-services">Services</span>
+        </div>
+        <div class="sidebar-item" onclick="showAdminPanel('availability')">
+          <span class="sidebar-icon">◻</span> <span id="sb-avail">Availability</span>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="adminLogout()" id="sb-logout">Sign Out</button>
+      </div>
+    </div>
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div>
+          <div class="admin-page-title" id="admin-page-label">Overview</div>
+          <div class="admin-date" id="admin-date-display"></div>
+        </div>
+        <a style="font-size:11px;color:var(--warm-gray);cursor:pointer;letter-spacing:1px;text-decoration:none" onclick="showSite()">← View Website</a>
+      </div>
+
+      <!-- Overview Panel -->
+      <div id="panel-overview" class="admin-panel active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-total">0</div>
+            <div class="stat-label" id="stat-total-l">Total Bookings</div>
+            <div class="stat-change" id="stat-total-c">This month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-pending">0</div>
+            <div class="stat-label" id="stat-pending-l">Pending</div>
+            <div class="stat-change" style="color:#C49A5A" id="stat-pending-c">Awaiting confirmation</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-confirmed">0</div>
+            <div class="stat-label" id="stat-conf-l">Confirmed</div>
+            <div class="stat-change" id="stat-conf-c">Upcoming</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-patients">0</div>
+            <div class="stat-label" id="stat-pat-l">Total Patients</div>
+            <div class="stat-change" id="stat-pat-c">Unique</div>
+          </div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title" id="recent-appts-title">Recent Appointments</div>
+          </div>
+          <div class="admin-card-body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th id="th-patient">Patient</th>
+                  <th id="th-service">Service</th>
+                  <th id="th-date">Date &amp; Time</th>
+                  <th id="th-status">Status</th>
+                  <th id="th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="overview-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointments Panel -->
+      <div id="panel-appointments" class="admin-panel">
+        <div class="search-bar">
+          <input type="text" class="search-input" placeholder="Search patients..." id="appt-search" oninput="filterAppointments()">
+          <select class="filter-select" id="appt-filter" onchange="filterAppointments()">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Patient</th><th>Phone</th><th>Service</th>
+                  <th>Date &amp; Time</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="appointments-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patients Panel -->
+      <div id="panel-patients" class="admin-panel">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title">Patient List</div>
+            <div style="font-size:12px;color:var(--warm-gray)" id="patients-count"></div>
+          </div>
+          <div class="admin-card-body">
+            <table class="data-table">
+              <thead>
+                <tr><th>Name</th><th>Phone</th><th>Last Service</th><th>Total Visits</th><th>Notes</th></tr>
+              </thead>
+              <tbody id="patients-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Admin -->
+      <div id="panel-services-admin" class="admin-panel">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title">Manage Services</div>
+            <button class="add-service-btn" onclick="addServiceAdmin()">+ Add Service</button>
+          </div>
+          <div class="admin-card-body">
+            <div class="service-manage-grid" id="services-admin-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Availability -->
+      <div id="panel-availability" class="admin-panel">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title">Working Hours &amp; Availability</div>
+          </div>
+          <div class="admin-card-body" style="padding:28px">
+            <div id="avail-grid"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /admin-section -->
+
+<!-- ══ BOOKING MODAL ══ -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeBooking()">✕</button>
+    <div class="modal-header">
+      <div class="modal-label" id="modal-label">Appointment Booking</div>
+      <div class="modal-title" id="modal-title">Reserve Your Session</div>
+    </div>
+    <div class="modal-body">
+      <div class="booking-steps">
+        <div class="step active" id="step-tab-1">1. Service</div>
+        <div class="step" id="step-tab-2">2. Date</div>
+        <div class="step" id="step-tab-3">3. Time</div>
+        <div class="step" id="step-tab-4">4. Details</div>
+        <div class="step" id="step-tab-5">5. Confirm</div>
+      </div>
+
+      <!-- Step 1: Service -->
+      <div class="step-panel active" id="step-1">
+        <div class="form-label" id="s1-label">Select Treatment</div>
+        <div class="service-select-grid" id="service-select-grid"></div>
+        <div class="modal-nav">
+          <div></div>
+          <button class="btn-step" onclick="goStep(2)" id="s1-next">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Date -->
+      <div class="step-panel" id="step-2">
+        <div class="form-label" id="s2-label">Choose Date</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <button class="action-btn" onclick="prevMonth()">‹</button>
+          <div id="cal-month-label" style="font-family:var(--font-display);font-size:18px;color:var(--text-dark)"></div>
+          <button class="action-btn" onclick="nextMonth()">›</button>
+        </div>
+        <div class="date-row" id="cal-headers">
+          <div class="day-header">Su</div><div class="day-header">Mo</div>
+          <div class="day-header">Tu</div><div class="day-header">We</div>
+          <div class="day-header">Th</div><div class="day-header">Fr</div>
+          <div class="day-header">Sa</div>
+        </div>
+        <div class="date-row" id="cal-days"></div>
+        <div class="modal-nav">
+          <button class="btn-step secondary" onclick="goStep(1)" id="s2-back">← Back</button>
+          <button class="btn-step" onclick="goStep(3)" id="s2-next">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Time -->
+      <div class="step-panel" id="step-3">
+        <div class="form-label" id="s3-label">Available Times</div>
+        <div class="time-grid" id="time-grid"></div>
+        <div class="modal-nav">
+          <button class="btn-step secondary" onclick="goStep(2)" id="s3-back">← Back</button>
+          <button class="btn-step" onclick="goStep(4)" id="s3-next">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Details -->
+      <div class="step-panel" id="step-4">
+        <div class="form-row">
+          <label class="form-label" id="s4-name-l">Full Name</label>
+          <input type="text" class="form-input" id="booking-name" placeholder="Your full name">
+        </div>
+        <div class="form-row">
+          <label class="form-label" id="s4-phone-l">Phone Number</label>
+          <input type="text" class="form-input" id="booking-phone" placeholder="01036363722">
+        </div>
+        <div class="form-row">
+          <label class="form-label" id="s4-notes-l">Notes (Optional)</label>
+          <textarea class="form-textarea" id="booking-notes" placeholder="Any allergies, previous treatments, or questions..."></textarea>
+        </div>
+        <div class="modal-nav">
+          <button class="btn-step secondary" onclick="goStep(3)" id="s4-back">← Back</button>
+          <button class="btn-step" onclick="goStep(5)" id="s4-next">Review Booking →</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Confirm -->
+      <div class="step-panel" id="step-5">
+        <div class="form-label" id="s5-review-l">Booking Summary</div>
+        <div class="booking-summary" id="booking-summary"></div>
+        <button class="btn-primary" style="width:100%" onclick="confirmBooking()" id="s5-confirm">Confirm Appointment</button>
+        <div class="modal-nav" style="margin-top:12px">
+          <button class="btn-step secondary" onclick="goStep(4)" id="s5-back">← Edit</button>
+          <div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer id="main-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">REJOV</div>
+      <div class="footer-logo-sub">DUAL EXPERTISE IN AESTHETICS</div>
+      <p class="footer-about" id="footer-about">Premium aesthetic clinic in Sheikh Zayed. Injectables, advanced skin, and beauty treatments by Dr. Samar Yehia.</p>
+    </div>
+    <div>
+      <div class="footer-col-title" id="footer-nav-title">Navigation</div>
+      <a class="footer-link" onclick="showPage('home')" id="footer-home">Home</a>
+      <a class="footer-link" onclick="showPage('about')" id="footer-about-link">About Dr. Samar</a>
+      <a class="footer-link" onclick="showSection('services')" id="footer-services">Services</a>
+      <a class="footer-link" onclick="showSection('before-after')" id="footer-ba">Before &amp; After</a>
+      <a class="footer-link" onclick="showSection('contact')" id="footer-contact">Contact</a>
+    </div>
+    <div>
+      <div class="footer-col-title" id="footer-services-title">Services</div>
+      <a class="footer-link">Diamond Lips</a>
+      <a class="footer-link">Facial Filler</a>
+      <a class="footer-link">Botox</a>
+      <a class="footer-link">Skin Boosters</a>
+      <a class="footer-link">PRP Therapy</a>
+    </div>
+    <div>
+      <div class="footer-col-title" id="footer-contact-title">Contact</div>
+      <a class="footer-link">Riyadh, Saudi Arabia</a>
+      <a class="footer-link">01036363722</a>
+      <a class="footer-link">Sun–Thu: 10AM–8PM</a>
+      <div class="footer-social" style="margin-top:16px">
+        <a class="social-link" href="https://www.instagram.com" target="_blank">IG</a>
+        <a class="social-link" href="https://wa.me/201036363722" target="_blank">WA</a>
+        <a class="social-link" href="https://snapchat.com" target="_blank">SC</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div id="footer-copy">© 2025 REJOV by Dr. Samar Yehia. All rights reserved.</div>
+    <a href="admin.html" style="cursor:pointer;opacity:0.4;font-size:10px;letter-spacing:1px;text-decoration:none;color:inherit" id="admin-link">Admin</a>
+  </div>
+</footer>
+
+<!-- WhatsApp Float (desktop only) -->
+<a href="https://wa.me/201036363722" class="whatsapp-float" target="_blank" title="WhatsApp">💬</a>
+
+<!-- Mobile Floating Action Bar -->
+<div class="mobile-fab" id="mobile-fab">
+  <a class="fab-btn fab-call" href="tel:+201036363722">
+    <span class="fab-icon">📞</span>
+    <span class="fab-label">Call</span>
+  </a>
+  <a class="fab-btn fab-wa" href="https://wa.me/201036363722" target="_blank" id="fab-wa-btn">
+    <span class="fab-icon">💬</span>
+    <span class="fab-label">WhatsApp</span>
+  </a>
+  <button class="fab-btn fab-primary" onclick="openBooking()">
+    <span class="fab-icon">✦</span>
+    <span class="fab-label">Book Now</span>
+  </button>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// DATA STORE
+// ════════════════════════════════════════════════
+const SERVICES = [
+  { id: 1, cat: 'Lip Specialist', catAr: 'أخصائية الشفاه', name: 'Diamond Lips', nameAr: 'شفاه الماس', desc: 'Proprietary technique for naturally full, symmetrical lips balanced with your smile architecture.', descAr: 'تقنية خاصة لشفاه ممتلئة طبيعية ومتناسقة مع هندسة ابتسامتك.', duration: '45–60 min', durationMin: 60, price: 'From SAR 1,200' },
+  { id: 2, cat: 'Facial Aesthetics', catAr: 'جماليات الوجه', name: 'Cheek Filler', nameAr: 'حشو الخدود', desc: 'Restore volume and enhance cheekbone definition with premium hyaluronic acid fillers.', descAr: 'استعادة الحجم وإبراز عظام الخد بحشوات حمض الهيالورونيك الفاخرة.', duration: '30 min', durationMin: 30, price: 'From SAR 1,000' },
+  { id: 3, cat: 'Anti-Aging', catAr: 'مكافحة الشيخوخة', name: 'Botox Therapy', nameAr: 'علاج البوتوكس', desc: 'Precise neurotoxin treatments to smooth fine lines and prevent new ones from forming.', descAr: 'حقن بوتوكس دقيقة لتنعيم الخطوط الدقيقة ومنع تكوّن جديدة.', duration: '20–30 min', durationMin: 30, price: 'From SAR 800' },
+  { id: 4, cat: 'Skin Health', catAr: 'صحة البشرة', name: 'Skin Boosters', nameAr: 'منشطات البشرة', desc: 'Deep hydration treatment using micro-injections of hyaluronic acid for radiant, plump skin.', descAr: 'علاج ترطيب عميق بالحقن الدقيق لحمض الهيالورونيك للبشرة المشرقة.', duration: '45 min', durationMin: 45, price: 'From SAR 900' },
+  { id: 5, cat: 'Regenerative', catAr: 'تجديدي', name: 'PRP Therapy', nameAr: 'علاج PRP', desc: 'Harness your body\'s own growth factors to rejuvenate skin texture and promote collagen.', descAr: 'استخدام عوامل النمو الطبيعية لتجديد نسيج البشرة وتعزيز الكولاجين.', duration: '60 min', durationMin: 60, price: 'From SAR 1,400' },
+  { id: 6, cat: 'Facial Harmonization', catAr: 'تناسق الوجه', name: 'Full Face Design', nameAr: 'تصميم الوجه الكامل', desc: 'Comprehensive assessment and multi-area treatment for complete facial harmony and balance.', descAr: 'تقييم شامل وعلاج متعدد المناطق لتحقيق التناسق الكامل للوجه.', duration: '90 min', durationMin: 90, price: 'From SAR 2,500' },
+];
+
+const REVIEWS = [
+  { stars: 5, text: 'Dr. Samar transformed my lips in the most natural way. I\'ve had fillers before but this is on a completely different level — she truly understands how lips should look.', name: 'Noura A.', sub: 'Diamond Lips Patient' },
+  { stars: 5, text: 'The entire experience felt premium from start to finish. Dr. Samar took so much time explaining everything. My cheeks look lifted and natural — exactly what I wanted.', name: 'Lina K.', sub: 'Cheek Filler Patient' },
+  { stars: 5, text: 'I was nervous about Botox but Dr. Samar made me feel completely at ease. Three weeks later and my forehead looks so smooth. Zero side effects, all results.', name: 'Sara M.', sub: 'Botox Patient' },
+];
+
+const FAQS = [
+  { q: 'What is the Diamond Lips technique?', a: 'The Diamond Lips technique is Dr. Samar\'s proprietary approach to lip augmentation that considers the volume, contour, and projection of your lips in relation to your unique smile design. Unlike standard filler techniques, this method ensures your results are perfectly harmonized with your facial proportions.' },
+  { q: 'How long do results last?', a: 'Results vary depending on the treatment and individual metabolism. Lip fillers typically last 8–12 months, cheek fillers 12–18 months, Botox 3–4 months, and skin boosters 6–9 months. Dr. Samar will give you a personalized estimate during your consultation.' },
+  { q: 'Is there downtime after treatment?', a: 'Most treatments have minimal downtime. You may experience mild swelling or bruising for 24–72 hours, particularly with lip fillers. Botox has virtually no downtime. Dr. Samar will provide detailed aftercare instructions tailored to your specific treatment.' },
+  { q: 'Are treatments painful?', a: 'Patient comfort is a priority. Topical numbing cream is applied before all injectable treatments, and most fillers also contain lidocaine for additional comfort. Most patients describe treatments as mild pressure rather than pain.' },
+  { q: 'How do I book a consultation?', a: 'You can book directly through this website using the Book Now button, via WhatsApp, or by calling the clinic. Consultations are available Sunday through Thursday 10AM–8PM and Saturday 10AM–4PM.' },
+  { q: 'What should I avoid before my appointment?', a: 'Avoid blood thinners (aspirin, ibuprofen), alcohol, and vitamin E supplements for 48 hours before injectable treatments to minimize bruising risk. Come with a clean face — no heavy makeup is preferred but not mandatory.' },
+];
+
+// ── Firebase init ────────────────────────────────
+// Config loaded from firebase-config.js (shared with admin.html)
+if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.firestore();
+const bookingsRef = db.collection('bookings');
+
+// In-memory mirror — kept in sync by real-time listener
+let bookings = [];
+
+// Real-time listener: updates bookings[] and refreshes admin UI whenever
+// Firestore data changes (new booking, status update from admin.html, etc.)
+bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
+  bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
+  // Refresh admin dashboard if it is currently open
+  const dash = document.getElementById('admin-dashboard');
+  if (dash && dash.style.display !== 'none') {
+    updateAdminStats();
+    renderAdminAppointments(
+      document.getElementById('appt-search')?.value || '',
+      document.getElementById('appt-filter')?.value || ''
+    );
+    renderAdminPatients();
+  }
+}, err => console.warn('Firestore listener error:', err));
+// ─────────────────────────────────────────────────
+
+const AVAILABILITY = {
+  0: [],
+  1: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+  2: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+  3: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+  4: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+  5: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM'],
+  6: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+};
+
+// ════════════════════════════════════════════════
+// LANGUAGE
+// ════════════════════════════════════════════════
+let currentLang = 'en';
+const T = {
+  en: {
+    'hero-eyebrow': 'INJECTABLES · SKIN · BEAUTY',
+    'hero-title': 'The Art of<br><em>Natural Beauty</em>',
+    'hero-sub': 'Natural refinement &amp; bold trends',
+    'hero-desc': 'Dual expertise in aesthetics — where precision science meets artistry. Specializing in injectables, advanced skin, and beauty treatments, every result uniquely designed for you.',
+    'hero-cta1': 'Book Consultation', 'hero-cta2': 'Meet Dr. Samar',
+    'doctor-label-home': 'The Doctor', 'doctor-name-home': 'Dr. Samar<br><em>Yehia</em>', 'doctor-cta-home': 'Book a Consultation',
+    'trust1': 'Patients Treated', 'trust2': 'Years Experience', 'trust3': 'Satisfaction Rate',
+    'strip1-t': 'Diamond Lips Technique', 'strip1-d': 'Proprietary lip augmentation method ensuring volume, contour, and projection perfectly balanced with your smile design.',
+    'strip2-t': 'Board Certified Physician', 'strip2-d': 'Internationally trained aesthetic medicine specialist with advanced certification in facial anatomy and injectables.',
+    'strip3-t': 'Personalized Treatment', 'strip3-d': 'Every treatment plan is uniquely crafted to enhance your natural features — no cookie-cutter results.',
+    'sec-label-services': 'Our Services', 'sec-title-services': 'Treatments<br><em>Crafted for You</em>',
+    'sec-label-ba': 'Results Gallery', 'sec-title-ba': 'Before &amp; <em>After</em>',
+    'sec-label-test': 'Patient Stories', 'sec-title-test': 'What Our<br><em>Patients Say</em>',
+    'sec-label-faq': 'Common Questions', 'sec-title-faq': 'Frequently Asked<br><em>Questions</em>',
+    'sec-label-contact': 'Get In Touch', 'sec-title-contact': 'Book Your<br><em>Consultation</em>',
+    'contact-loc-k': 'Location', 'contact-loc-v': 'Park St, Sheikh Zayed<br>Cairo, Egypt',
+    'contact-hrs-k': 'Working Hours', 'contact-hrs-v': 'Sunday – Thursday: 10:00 AM – 8:00 PM<br>Saturday: 10:00 AM – 4:00 PM',
+    'contact-ph-k': 'WhatsApp & Calls', 'wa-btn-text': 'Message on WhatsApp',
+    'cf-name-l': 'Full Name', 'cf-phone-l': 'Phone Number', 'cf-service-l': 'Service of Interest', 'cf-msg-l': 'Message',
+    'cf-submit': 'Send Message',
+    'nav-home': 'Home', 'nav-about': 'About', 'nav-services': 'Services', 'nav-ba': 'Before & After',
+    'nav-test': 'Reviews', 'nav-faq': 'FAQ', 'nav-contact': 'Contact', 'nav-book': 'Book Now',
+    'footer-about': 'Premium aesthetic clinic in Sheikh Zayed. Injectables, advanced skin, and beauty treatments by Dr. Samar Yehia.',
+    'footer-nav-title': 'Navigation', 'footer-services-title': 'Services', 'footer-contact-title': 'Contact',
+    'footer-copy': '© 2025 REJOV by Dr. Samar Yehia. All rights reserved.',
+    'footer-home': 'Home', 'footer-about-link': 'About Dr. Samar', 'footer-services': 'Services', 'footer-ba': 'Before & After', 'footer-contact': 'Contact',
+    'modal-label': 'Appointment Booking', 'modal-title': 'Reserve Your Session',
+    'about-label': 'The Doctor', 'about-title': 'Dr. Samar<br><em>Yehia</em>', 'about-cta': 'Book a Consultation',
+    'about-story-label': 'Her Story',
+    'lang-bar-contact': 'Park St, Sheikh Zayed &nbsp;|&nbsp; 01036363722',
+    'login-title': 'Sign In', 'login-user-l': 'Username', 'login-pass-l': 'Password', 'login-btn': 'Access Dashboard',
+    's1-label': 'Select Treatment', 's2-label': 'Choose Date', 's3-label': 'Available Times',
+    's4-name-l': 'Full Name', 's4-phone-l': 'Phone Number', 's4-notes-l': 'Notes (Optional)',
+    's5-review-l': 'Booking Summary', 's5-confirm': 'Confirm Appointment',
+    's1-next': 'Continue →', 's2-next': 'Continue →', 's2-back': '← Back',
+    's3-next': 'Continue →', 's3-back': '← Back', 's4-next': 'Review Booking →', 's4-back': '← Back', 's5-back': '← Edit',
+    'step-tab-1': '1. Service', 'step-tab-2': '2. Date', 'step-tab-3': '3. Time', 'step-tab-4': '4. Details', 'step-tab-5': '5. Confirm',
+    'about-story-label': 'Her Story',
+    'sb-overview': 'Overview', 'sb-appts': 'Appointments', 'sb-patients': 'Patients',
+    'sb-services': 'Services', 'sb-avail': 'Availability', 'sb-logout': 'Sign Out',
+    'scroll-hint': 'SCROLL',
+  },
+  ar: {
+    'hero-eyebrow': 'طب التجميل · أخصائية تقنية الماس للشفاه',
+    'hero-title': 'فن<br><em>الجمال الطبيعي</em>',
+    'hero-sub': 'د. سمر يحيى',
+    'hero-desc': 'طب تجميلي دقيق حيث يلتقي العلم بالفن. متخصصة في شفاه الماس، تناسق الوجه، وتجديد شباب البشرة — كل علاج مصمم خصيصاً لكِ.',
+    'hero-cta1': 'احجزي استشارة', 'hero-cta2': 'تعرفي على د. سمر',
+    'doctor-label-home': 'الطبيبة', 'doctor-name-home': 'د. سمر<br><em>يحيى</em>', 'doctor-cta-home': 'احجزي استشارة',
+    'trust1': 'مريضة تمّت معالجتها', 'trust2': 'سنوات خبرة', 'trust3': 'نسبة الرضا',
+    'strip1-t': 'تقنية شفاه الماس', 'strip1-d': 'أسلوب خاص لتكبير الشفاه يضمن التوازن الكامل مع تصميم ابتسامتك.',
+    'strip2-t': 'طبيبة معتمدة', 'strip2-d': 'أخصائية دولية في طب التجميل بشهادات متقدمة في تشريح الوجه والحقن.',
+    'strip3-t': 'علاج مخصص', 'strip3-d': 'كل خطة علاج مصممة لإبراز جمالك الطبيعي — نتائج فريدة لكل مريضة.',
+    'sec-label-services': 'خدماتنا', 'sec-title-services': 'علاجات<br><em>مصممة لكِ</em>',
+    'sec-label-ba': 'معرض النتائج', 'sec-title-ba': 'قبل &amp; <em>بعد</em>',
+    'sec-label-test': 'قصص المريضات', 'sec-title-test': 'ماذا تقول<br><em>مريضاتنا</em>',
+    'sec-label-faq': 'الأسئلة الشائعة', 'sec-title-faq': 'الأسئلة<br><em>المتكررة</em>',
+    'sec-label-contact': 'تواصلي معنا', 'sec-title-contact': 'احجزي<br><em>استشارتك</em>',
+    'contact-loc-k': 'الموقع', 'contact-loc-v': 'شارع بارك، الشيخ زايد<br>القاهرة، مصر',
+    'contact-hrs-k': 'أوقات العمل', 'contact-hrs-v': 'الأحد – الخميس: 10:00 ص – 8:00 م<br>السبت: 10:00 ص – 4:00 م',
+    'contact-ph-k': 'واتساب والمكالمات', 'wa-btn-text': 'تواصلي عبر واتساب',
+    'cf-name-l': 'الاسم الكامل', 'cf-phone-l': 'رقم الهاتف', 'cf-service-l': 'الخدمة المطلوبة', 'cf-msg-l': 'الرسالة',
+    'cf-submit': 'إرسال الرسالة',
+    'nav-home': 'الرئيسية', 'nav-about': 'عن الدكتورة', 'nav-services': 'الخدمات', 'nav-ba': 'قبل وبعد',
+    'nav-test': 'التقييمات', 'nav-faq': 'الأسئلة', 'nav-contact': 'تواصلي', 'nav-book': 'احجزي الآن',
+    'footer-about': 'طب تجميلي فاخر في الرياض. متخصصة في شفاه الماس وتناسق الوجه وتجديد البشرة.',
+    'footer-nav-title': 'التنقل', 'footer-services-title': 'الخدمات', 'footer-contact-title': 'التواصل',
+    'footer-copy': '© 2025 عيادة د. سمر يحيى التجميلية. جميع الحقوق محفوظة.',
+    'footer-home': 'الرئيسية', 'footer-about-link': 'عن د. سمر', 'footer-services': 'الخدمات', 'footer-ba': 'قبل وبعد', 'footer-contact': 'التواصل',
+    'modal-label': 'حجز موعد', 'modal-title': 'احجزي جلستك',
+    'about-label': 'الطبيبة', 'about-title': 'د. سمر<br><em>يحيى</em>', 'about-cta': 'احجزي استشارة',
+    'about-story-label': 'قصتها',
+    'lang-bar-contact': 'شارع بارك، الشيخ زايد &nbsp;|&nbsp; 01036363722',
+    'login-title': 'تسجيل الدخول', 'login-user-l': 'اسم المستخدم', 'login-pass-l': 'كلمة المرور', 'login-btn': 'الدخول للوحة التحكم',
+    's1-label': 'اختاري العلاج', 's2-label': 'اختاري التاريخ', 's3-label': 'الأوقات المتاحة',
+    's4-name-l': 'الاسم الكامل', 's4-phone-l': 'رقم الهاتف', 's4-notes-l': 'ملاحظات (اختياري)',
+    's5-review-l': 'ملخص الحجز', 's5-confirm': 'تأكيد الموعد',
+    's1-next': 'التالي ←', 's2-next': 'التالي ←', 's2-back': '→ رجوع',
+    's3-next': 'التالي ←', 's3-back': '→ رجوع', 's4-next': 'مراجعة الحجز ←', 's4-back': '→ رجوع', 's5-back': '→ تعديل',
+    'step-tab-1': '١. الخدمة', 'step-tab-2': '٢. التاريخ', 'step-tab-3': '٣. الوقت', 'step-tab-4': '٤. البيانات', 'step-tab-5': '٥. التأكيد',
+    'about-story-label': 'قصتها',
+    'sb-overview': 'الرئيسية', 'sb-appts': 'المواعيد', 'sb-patients': 'المريضات',
+    'sb-services': 'الخدمات', 'sb-avail': 'أوقات العمل', 'sb-logout': 'تسجيل الخروج',
+    'scroll-hint': 'اسحب',
+  }
+};
+
+function setLang(lang) {
+  currentLang = lang;
+  document.body.classList.toggle('rtl', lang === 'ar');
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  document.querySelectorAll('.lang-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&lang==='en')||(i===1&&lang==='ar')));
+  const t = T[lang];
+  Object.entries(t).forEach(([k,v]) => {
+    const el = document.getElementById(k);
+    if (el) el.innerHTML = v;
+  });
+  // Sync mobile menu labels
+  const mobileMap = {'m-nav-home':'nav-home','m-nav-about':'nav-about','m-nav-services':'nav-services','m-nav-ba':'nav-ba','m-nav-test':'nav-test','m-nav-faq':'nav-faq','m-nav-contact':'nav-contact','m-nav-book':'nav-book'};
+  Object.entries(mobileMap).forEach(([mid,did]) => {
+    const me = document.getElementById(mid);
+    if (me && t[did]) me.innerHTML = t[did];
+  });
+  // Update about page bio for Arabic
+  const bioEl = document.getElementById('about-bio-text');
+  if (bioEl) {
+    if (lang === 'ar') {
+      bioEl.innerHTML = `
+        <p>د. سمر يحيى طبيبة متخصصة رائدة في طب التجميل، اشتُهرت بتقنية شفاه الماس المميزة — وهي نهج خاص يضمن أن كل عملية تكبير شفاه متناسقة مع هندسة ابتسامة المريضة الفريدة.</p>
+        <p>بخبرة سريرية تمتد لأكثر من ثماني سنوات وتدريب في مؤسسات دولية رائدة، تجمع د. سمر بين المعرفة التشريحية العميقة وعين الفنانة لتقديم نتائج تبدو طبيعية وتشعرين بجمالها وتدوم طويلاً.</p>
+        <p>فلسفتها بسيطة: التعزيز لا الإفراط. كل علاج هو تعاون بين الطبيبة والمريضة — حوار حول الثقة بالنفس والهوية والنسخة من نفسك التي طالما تصورتِها.</p>
+      `;
+    } else {
+      bioEl.innerHTML = `
+        <p>Dr. Samar Yehia is a leading aesthetic medicine physician renowned for her signature Diamond Lips technique — a proprietary approach that ensures every lip augmentation is harmonized with the patient's unique smile architecture.</p>
+        <p>With over eight years of clinical experience and training from leading international institutions, Dr. Samar combines deep anatomical knowledge with an artist's eye to deliver results that look natural, feel beautiful, and last.</p>
+        <p>Her philosophy is simple: enhance, never overpower. Each treatment is a collaboration between doctor and patient — a conversation about confidence, identity, and the version of yourself you've always envisioned.</p>
+      `;
+    }
+  }
+  // Update about creds for Arabic
+  const credsEl = document.getElementById('about-creds');
+  const doctorCredsHome = document.getElementById('doctor-creds-home');
+  const arCreds = ['طبيبة معتمدة في طب التجميل','مبتكرة تقنية شفاه الماس','أخصائية متقدمة في الحشو والحقن','تدريب دولي في تشريح الوجه','أكثر من 8 سنوات خبرة سريرية'];
+  const enCreds = ['Board Certified Aesthetic Medicine Physician','Diamond Lips Technique Creator','Advanced Injectable &amp; Filler Specialist','International Training in Facial Anatomy','8+ Years Clinical Experience'];
+  const credsList = lang === 'ar' ? arCreds : enCreds;
+  const credsHtml = credsList.map(c => `<div class="cred-item"><div class="cred-bullet"></div>${c}</div>`).join('');
+  if (credsEl) credsEl.innerHTML = credsHtml;
+  if (doctorCredsHome) doctorCredsHome.innerHTML = credsHtml;
+  renderServices();
+  renderBeforeAfter();
+  renderTestimonials();
+  renderFAQ();
+  renderServiceSelect();
+  renderContactServices();
+}
+
+// ════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ════════════════════════════════════════════════
+function renderServices() {
+  const g = document.getElementById('services-grid');
+  if (!g) return;
+  g.innerHTML = SERVICES.map((s, i) => `
+    <div class="service-card">
+      <div class="service-num">0${i+1}</div>
+      <div class="service-cat">${currentLang==='ar'?(s.catAr||s.cat):s.cat}</div>
+      <div class="service-name">${currentLang==='ar'?(s.nameAr||s.name):s.name}</div>
+      <div class="service-desc">${currentLang==='ar'?(s.descAr||s.desc):s.desc}</div>
+      <div class="service-meta">
+        <span class="service-duration">⏱ ${s.duration}</span>
+        <span>${s.price}</span>
+      </div>
+      <button class="service-book" onclick="openBookingService(${s.id})">${currentLang==='ar'?'احجزي الآن':'Book Now'}</button>
+    </div>
+  `).join('');
+}
+
+function renderBeforeAfter() {
+  const g = document.getElementById('ba-grid');
+  if (!g) return;
+  const imgs = [
+    { before: 'assets/images/IMG_2386.jpeg', after: 'assets/images/IMG_2389.jpeg', tag: 'Diamond Lips', title: currentLang==='ar'?'شفاه الماس':'Diamond Lips', main: true },
+    { before: 'assets/images/IMG_2387.jpeg', after: 'assets/images/IMG_2388.jpeg', tag: 'Diamond Lips', title: currentLang==='ar'?'تكبير الشفاه':'Lip Enhancement', main: false },
+    { before: 'assets/images/IMG_2388.jpeg', after: 'assets/images/IMG_2389.jpeg', tag: 'Diamond Lips', title: currentLang==='ar'?'تصميم الشفاه':'Lip Design', main: false },
+  ];
+  const beforeLabel = currentLang==='ar'?'قبل':'Before';
+  const afterLabel  = currentLang==='ar'?'بعد':'After';
+
+  // Replace grid with layout container
+  g.className = 'ba-layout';
+
+  g.innerHTML = imgs.map((img, idx) => `
+    <div class="ba-card ${img.main ? 'ba-main' : 'ba-secondary'}">
+      <div class="ba-slider-wrap" id="ba-slider-${idx}" data-pct="50">
+        <img src="${img.after}"  alt="${img.title} after"  class="ba-img ba-img-after loaded">
+        <img src="${img.before}" alt="${img.title} before" class="ba-img ba-img-before loaded">
+        <div class="ba-slider-handle" id="ba-handle-${idx}">
+        </div>
+        <div class="ba-slider-arrows">◀ ▶</div>
+        <div class="ba-label-pill before">${beforeLabel}</div>
+        <div class="ba-label-pill after">${afterLabel}</div>
+      </div>
+      <div class="ba-overlay" style="pointer-events:none">
+        <div class="ba-tag">${img.tag}</div>
+        <div class="ba-title">${img.title}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Attach drag logic to each slider
+  document.querySelectorAll('.ba-slider-wrap').forEach(wrap => {
+    initBASlider(wrap);
+  });
+}
+
+function renderTestimonials() {
+  const g = document.getElementById('testimonials-grid');
+  if (!g) return;
+  const reviewsAr = [
+    { stars: 5, text: 'د. سمر حولت شفاهي بطريقة طبيعية جداً. جربت حشوات الشفاه من قبل لكن هذا مستوى مختلف تماماً — هي تفهم حقاً كيف يجب أن تبدو الشفاه.', name: 'نورة أ.', sub: 'مريضة شفاه الماس' },
+    { stars: 5, text: 'التجربة كلها شعرت بالفخامة من البداية للنهاية. أخذت د. سمر وقتاً كافياً لشرح كل شيء. خدودي تبدو مرفوعة وطبيعية تماماً.', name: 'لينا خ.', sub: 'مريضة حشو الخدود' },
+    { stars: 5, text: 'كنت قلقة من البوتوكس لكن د. سمر جعلتني أشعر بالراحة التامة. بعد ثلاثة أسابيع جبهتي ناعمة جداً. صفر آثار جانبية، نتائج رائعة.', name: 'سارة م.', sub: 'مريضة بوتوكس' },
+  ];
+  const reviews = currentLang === 'ar' ? reviewsAr : REVIEWS;
+  g.innerHTML = reviews.map(r => `
+    <div class="review-card">
+      <div class="review-quote">"</div>
+      <div class="stars">${'★'.repeat(r.stars)}</div>
+      <div class="review-text">"${r.text}"</div>
+      <div class="reviewer">
+        <div class="reviewer-avatar">${r.name[0]}</div>
+        <div>
+          <div class="reviewer-name">${r.name}</div>
+          <div class="reviewer-sub">${r.sub}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderFAQ() {
+  const g = document.getElementById('faq-list');
+  if (!g) return;
+  const faqsAr = [
+    { q: 'ما هي تقنية شفاه الماس؟', a: 'تقنية شفاه الماس هي أسلوب د. سمر الخاص في تكبير الشفاه الذي يراعي حجم وكنتور وإسقاط شفاهك بالتناسب مع تصميم ابتسامتك الفريد.' },
+    { q: 'كم تدوم النتائج؟', a: 'تتفاوت النتائج حسب العلاج والأيض الفردي. حشوات الشفاه عادةً 8-12 شهراً، حشو الخدود 12-18 شهراً، البوتوكس 3-4 أشهر، ومنشطات البشرة 6-9 أشهر.' },
+    { q: 'هل هناك فترة نقاهة بعد العلاج؟', a: 'معظم العلاجات لها فترة نقاهة قصيرة. قد تشعرين ببعض التورم أو الكدمات لمدة 24-72 ساعة خاصة مع حشوات الشفاه. البوتوكس لا يحتاج نقاهة تقريباً.' },
+    { q: 'هل العلاجات مؤلمة؟', a: 'راحة المريضة أولوية. يُطبق كريم تخدير موضعي قبل جميع الحقن، وتحتوي معظم الحشوات أيضاً على ليدوكايين لراحة إضافية.' },
+    { q: 'كيف أحجز استشارة؟', a: 'يمكنك الحجز مباشرة عبر هذا الموقع، أو عبر واتساب، أو بالاتصال بالعيادة. الاستشارات متاحة الأحد – الخميس 10ص-8م والسبت 10ص-4م.' },
+    { q: 'ماذا يجب تجنبه قبل الموعد؟', a: 'تجنبي مضادات التخثر (الأسبرين، الإيبوبروفين)، الكحول، وفيتامين E لمدة 48 ساعة قبل علاجات الحقن لتقليل الكدمات.' },
+  ];
+  const faqs = currentLang === 'ar' ? faqsAr : FAQS;
+  g.innerHTML = faqs.map(f => `
+    <div class="faq-item" onclick="toggleFAQ(this)">
+      <div class="faq-q">${f.q} <span class="faq-toggle">+</span></div>
+      <div class="faq-a"><div class="faq-a-inner">${f.a}</div></div>
+    </div>
+  `).join('');
+}
+
+function renderContactServices() {
+  const sel = document.getElementById('cf-service-sel');
+  if (!sel) return;
+  sel.innerHTML = `<option value="">${currentLang==='ar'?'اختاري خدمة...':'Select a service...'}</option>` +
+    SERVICES.map(s => `<option value="${s.name}">${currentLang==='ar'?(s.nameAr||s.name):s.name}</option>`).join('');
+}
+
+function toggleFAQ(el) { el.classList.toggle('open'); }
+
+// ════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  if (page === 'home') document.getElementById('page-home').classList.add('active');
+  else if (page === 'about') document.getElementById('page-about').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showSection(id) {
+  showPage('home');
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function showAdmin() {
+  document.getElementById('site-main').style.display = 'none';
+  document.getElementById('main-footer').style.display = 'none';
+  document.getElementById('main-nav').style.display = 'none';
+  document.getElementById('admin-section').style.display = 'block';
+  document.querySelector('.whatsapp-float').style.display = 'none';
+  const fab = document.getElementById('mobile-fab');
+  if (fab) fab.style.display = 'none';
+}
+
+function showSite() {
+  document.getElementById('site-main').style.display = 'block';
+  document.getElementById('main-footer').style.display = 'block';
+  document.getElementById('main-nav').style.display = 'flex';
+  document.getElementById('admin-section').style.display = 'none';
+  document.querySelector('.whatsapp-float').style.display = 'flex';
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('admin-login').style.display = 'flex';
+  const fab = document.getElementById('mobile-fab');
+  if (fab) fab.style.display = '';
+}
+
+// ════════════════════════════════════════════════
+// BOOKING SYSTEM
+// ════════════════════════════════════════════════
+let booking = { service: null, date: null, time: null, name: '', phone: '', notes: '' };
+let calDate = new Date();
+
+function openBooking(serviceId) {
+  booking = { service: null, date: null, time: null, name: '', phone: '', notes: '' };
+  if (serviceId) {
+    const s = SERVICES.find(x => x.id === serviceId);
+    if (s) booking.service = s;
+  }
+  goStep(1);
+  document.getElementById('booking-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function openBookingService(id) { openBooking(id); }
+
+function closeBooking() {
+  document.getElementById('booking-modal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('booking-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeBooking();
+});
+
+function renderServiceSelect() {
+  const g = document.getElementById('service-select-grid');
+  if (!g) return;
+  g.innerHTML = SERVICES.map(s => `
+    <div class="service-option ${booking.service?.id===s.id?'selected':''}" data-id="${s.id}" onclick="selectService(${s.id}, this)">
+      <div class="service-option-name">${currentLang==='ar'?(s.nameAr||s.name):s.name}</div>
+      <div class="service-option-dur">${s.duration}</div>
+    </div>
+  `).join('');
+}
+
+function selectService(id, el) {
+  document.querySelectorAll('.service-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  booking.service = SERVICES.find(s => s.id === id);
+}
+
+function renderCalendar() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthsAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const m = currentLang==='ar' ? monthsAr : months;
+  document.getElementById('cal-month-label').textContent = `${m[calDate.getMonth()]} ${calDate.getFullYear()}`;
+  const firstDay = new Date(calDate.getFullYear(), calDate.getMonth(), 1).getDay();
+  const daysInMonth = new Date(calDate.getFullYear(), calDate.getMonth()+1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += '<div></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(calDate.getFullYear(), calDate.getMonth(), d);
+    const isPast = dt < today;
+    const isSunday = dt.getDay() === 0;
+    const dateStr = `${calDate.getFullYear()}-${String(calDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSelected = booking.date === dateStr;
+    const isToday = dt.getTime() === today.getTime();
+    html += `<div class="date-cell ${isPast||isSunday?'past':''} ${isSelected?'selected':''} ${isToday?'today':''}" 
+      onclick="${isPast||isSunday?'':'selectDate(\''+dateStr+'\')'}">${d}</div>`;
+  }
+  document.getElementById('cal-days').innerHTML = html;
+}
+
+function selectDate(dateStr) {
+  booking.date = dateStr;
+  booking.time = null;
+  renderCalendar();
+  renderTimeSlots();
+}
+
+function prevMonth() { calDate.setMonth(calDate.getMonth()-1); renderCalendar(); }
+function nextMonth() { calDate.setMonth(calDate.getMonth()+1); renderCalendar(); }
+
+function renderTimeSlots() {
+  const g = document.getElementById('time-grid');
+  if (!booking.date) {
+    g.innerHTML = `<div style="grid-column:1/-1;color:var(--text-light);font-size:12px">${currentLang==='ar'?'اختاري تاريخاً أولاً':'Please select a date first'}</div>`;
+    return;
+  }
+  const dt = new Date(booking.date+'T12:00:00');
+  const dow = dt.getDay();
+  const slots = AVAILABILITY[dow] || [];
+  if (!slots.length) {
+    g.innerHTML = `<div style="grid-column:1/-1;color:var(--text-light);font-size:12px">${currentLang==='ar'?'لا مواعيد في هذا اليوم':'No appointments on this day'}</div>`;
+    return;
+  }
+
+  // Check if selected date is today — need to expire past times
+  const now = new Date();
+  const isToday = booking.date === `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+  // Service duration in minutes for smart slot blocking
+  const serviceDur = (booking.service?.durationMin || 30);
+
+  // Booked slots (exclude cancelled). Also block slots that overlap with existing bookings based on duration
+  const bookedSlots = bookings
+    .filter(b => b.date === booking.date && b.status !== 'cancelled')
+    .map(b => b.time);
+
+  function parseSlotMinutes(t) {
+    // Parse "10:00 AM" / "2:00 PM" to minutes since midnight
+    const [time, period] = t.split(' ');
+    let [h, m] = time.split(':').map(Number);
+    if (period === 'PM' && h !== 12) h += 12;
+    if (period === 'AM' && h === 12) h = 0;
+    return h * 60 + m;
+  }
+
+  const bookedMinutes = bookedSlots.map(parseSlotMinutes);
+
+  g.innerHTML = slots.map(t => {
+    const slotMin = parseSlotMinutes(t);
+    // Expired: past time on today
+    const isExpired = isToday && slotMin <= now.getHours() * 60 + now.getMinutes();
+    // Booked: overlaps any existing booking (considering service duration)
+    const isBooked = bookedMinutes.some(bm => slotMin < bm + 30 && slotMin + serviceDur > bm);
+    const isSelected = booking.time === t;
+    let cls = 'time-slot';
+    if (isExpired) cls += ' expired';
+    else if (isBooked) cls += ' booked';
+    if (isSelected && !isExpired && !isBooked) cls += ' selected';
+    const clickable = !isExpired && !isBooked;
+    return `<div class="${cls}" onclick="${clickable?'selectTime(\''+t+'\')':''}" ${isExpired?'title="'+(currentLang==='ar'?'الوقت مضى':'Time has passed')+'"':''}>${t}</div>`;
+  }).join('');
+}
+
+function selectTime(t) { booking.time = t; renderTimeSlots(); }
+
+function renderSummary() {
+  const s = document.getElementById('booking-summary');
+  if (!s) return;
+  const rows = [
+    [currentLang==='ar'?'الخدمة':'Service', booking.service?.name || '—'],
+    [currentLang==='ar'?'التاريخ':'Date', booking.date || '—'],
+    [currentLang==='ar'?'الوقت':'Time', booking.time || '—'],
+    [currentLang==='ar'?'الاسم':'Name', booking.name || '—'],
+    [currentLang==='ar'?'الهاتف':'Phone', booking.phone || '—'],
+  ];
+  s.innerHTML = rows.map(([k,v]) => `
+    <div class="summary-row">
+      <span class="summary-key">${k}</span>
+      <span class="summary-val">${v}</span>
+    </div>
+  `).join('');
+}
+
+let currentStep = 1;
+function goStep(n) {
+  // Better validation with inline feedback instead of alert
+  if (n === 2 && !booking.service) { highlightRequired('service-select-grid', currentLang==='ar'?'اختاري خدمة أولاً':'Please select a treatment'); return; }
+  if (n === 3 && !booking.date) { highlightRequired('cal-days', currentLang==='ar'?'اختاري تاريخاً':'Please select a date'); return; }
+  if (n === 4 && !booking.time) { highlightRequired('time-grid', currentLang==='ar'?'اختاري وقتاً':'Please select a time slot'); return; }
+  if (n === 5) {
+    booking.name = document.getElementById('booking-name').value.trim();
+    booking.phone = document.getElementById('booking-phone').value.trim();
+    booking.notes = document.getElementById('booking-notes').value.trim();
+    let valid = true;
+    const nameInput = document.getElementById('booking-name');
+    const phoneInput = document.getElementById('booking-phone');
+    nameInput.classList.remove('error'); phoneInput.classList.remove('error');
+    if (!booking.name) { nameInput.classList.add('error'); nameInput.focus(); valid = false; }
+    if (!booking.phone) { phoneInput.classList.add('error'); if (valid) phoneInput.focus(); valid = false; }
+    if (!valid) return;
+    renderSummary();
+  }
+  currentStep = n;
+  document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i+1===n));
+  document.querySelectorAll('.step').forEach((s,i) => {
+    s.classList.toggle('active', i+1===n);
+    s.classList.toggle('done', i+1<n);
+  });
+  if (n === 2) renderCalendar();
+  if (n === 3) renderTimeSlots();
+  if (n === 1) renderServiceSelect();
+}
+
+function highlightRequired(containerId, msg) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.style.outline = '2px solid #C47A7A';
+  el.style.outlineOffset = '4px';
+  // short shake
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = 'shakeX 0.3s ease';
+  setTimeout(() => { el.style.outline = ''; el.style.animation = ''; }, 1200);
+  showToast(msg, 'warn');
+}
+
+function confirmBooking() {
+  const btn = document.getElementById('s5-confirm');
+  if (!btn) return;
+  // Loading state
+  btn.classList.add('btn-loading');
+  btn.textContent = currentLang==='ar'?'جارٍ الحجز...':'Processing...';
+  btn.disabled = true;
+
+  // Save to Firestore — no setTimeout needed; we show success immediately
+  // then let the real-time listener sync the in-memory array.
+  const newBooking = {
+    name: booking.name, phone: booking.phone,
+    service: booking.service.name,
+    date: booking.date, time: booking.time,
+    status: 'pending', notes: booking.notes || '',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  bookingsRef.add(newBooking).catch(err => console.warn('Save booking error:', err));
+
+  (async () => {
+
+    // Build prefilled WhatsApp URL
+    const waMsg = buildWhatsAppMessage(booking);
+    const waUrl = `https://wa.me/201036363722?text=${encodeURIComponent(waMsg)}`;
+
+    // Show success panel inside modal
+    const modalBody = document.querySelector('.modal-body');
+    modalBody.innerHTML = `
+      <div class="booking-success">
+        <div class="booking-success-icon">✦</div>
+        <div class="booking-success-title">${currentLang==='ar'?'تم الحجز!':'Booking Received!'}</div>
+        <div class="booking-success-msg">
+          ${currentLang==='ar'
+            ? `شكراً <strong>${booking.name}</strong>! تم استلام طلب حجزك لـ <strong>${booking.service.nameAr||booking.service.name}</strong> بتاريخ <strong>${booking.date}</strong> الساعة <strong>${booking.time}</strong>.<br><br>سيتم التواصل معك على <strong>${booking.phone}</strong> لتأكيد الموعد.`
+            : `Thank you <strong>${booking.name}</strong>! Your booking for <strong>${booking.service.name}</strong> on <strong>${booking.date}</strong> at <strong>${booking.time}</strong> has been received.<br><br>We'll confirm your appointment at <strong>${booking.phone}</strong> shortly.`}
+        </div>
+        <a href="${waUrl}" class="booking-success-wa" target="_blank">
+          💬 ${currentLang==='ar'?'تأكيد عبر واتساب':'Confirm via WhatsApp'}
+        </a>
+        <button class="btn-step secondary" style="width:100%;justify-content:center" onclick="closeBooking()">
+          ${currentLang==='ar'?'إغلاق':'Close'}
+        </button>
+      </div>
+    `;
+    btn.classList.remove('btn-loading');
+    btn.disabled = false;
+  })();
+}
+
+function buildWhatsAppMessage(b) {
+  if (currentLang === 'ar') {
+    return `مرحباً، أود تأكيد حجزي:\n\n👤 الاسم: ${b.name}\n✨ الخدمة: ${b.service.nameAr||b.service.name}\n📅 التاريخ: ${b.date}\n⏰ الوقت: ${b.time}\n📱 الهاتف: ${b.phone}${b.notes?'\n📝 ملاحظات: '+b.notes:''}\n\nشكراً!`;
+  }
+  return `Hello, I'd like to confirm my booking:\n\n👤 Name: ${b.name}\n✨ Service: ${b.service.name}\n📅 Date: ${b.date}\n⏰ Time: ${b.time}\n📱 Phone: ${b.phone}${b.notes?'\n📝 Notes: '+b.notes:''}\n\nThank you!`;
+}
+
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  const bg = type === 'warn' ? 'rgba(196,122,122,0.95)' : 'var(--charcoal)';
+  t.style.cssText = `position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:${bg};color:var(--cream);padding:14px 24px;font-size:12px;z-index:9999;max-width:420px;text-align:center;line-height:1.6;box-shadow:0 8px 40px rgba(0,0,0,0.3);border-radius:2px;letter-spacing:0.3px`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.4s'; setTimeout(() => t.remove(), 400); }, type === 'warn' ? 3000 : 5000);
+}
+
+// ════════════════════════════════════════════════
+// ADMIN
+// ════════════════════════════════════════════════
+function adminLogin() {
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  if (pass === '7777') {
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'grid';
+    document.getElementById('admin-date-display').textContent = new Date().toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    updateAdminStats();
+    renderAdminAppointments();
+    renderAdminPatients();
+    renderAdminServices();
+    renderAvailability();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function adminLogout() {
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('admin-login').style.display = 'flex';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+function showAdminPanel(id) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${id}`).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const titles = { overview:'Overview', appointments:'Appointments', patients:'Patients', 'services-admin':'Services', availability:'Availability' };
+  document.getElementById('admin-page-label').textContent = titles[id] || id;
+  if (id === 'appointments') renderAdminAppointments();
+  if (id === 'patients') renderAdminPatients();
+  if (id === 'services-admin') renderAdminServices();
+  if (id === 'availability') renderAvailability();
+}
+
+function updateAdminStats() {
+  document.getElementById('stat-total').textContent = bookings.length;
+  document.getElementById('stat-pending').textContent = bookings.filter(b=>b.status==='pending').length;
+  document.getElementById('stat-confirmed').textContent = bookings.filter(b=>b.status==='confirmed').length;
+  const uniquePatients = [...new Set(bookings.map(b=>b.phone))].length;
+  document.getElementById('stat-patients').textContent = uniquePatients;
+  renderOverviewTable();
+}
+
+function renderOverviewTable() {
+  const tbody = document.getElementById('overview-table-body');
+  if (!tbody) return;
+  const recent = [...bookings].reverse().slice(0, 5);
+  tbody.innerHTML = recent.map(b => `
+    <tr>
+      <td>${b.name}</td>
+      <td>${b.service}</td>
+      <td>${b.date} ${b.time}</td>
+      <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+      <td>
+        ${b.status==='pending'?`<button class="action-btn confirm" onclick="updateStatus('${b._docId||b.id}','confirmed')">Confirm</button>`:''}
+        ${b.status!=='cancelled'&&b.status!=='completed'?`<button class="action-btn cancel" onclick="updateStatus('${b._docId||b.id}','cancelled')">Cancel</button>`:''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderAdminAppointments(filter='', statusFilter='') {
+  const tbody = document.getElementById('appointments-table-body');
+  if (!tbody) return;
+  let filtered = bookings.filter(b => {
+    const matchSearch = !filter || b.name.toLowerCase().includes(filter.toLowerCase()) || b.phone.includes(filter);
+    const matchStatus = !statusFilter || b.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
+  tbody.innerHTML = filtered.map(b => `
+    <tr>
+      <td>${b.name}</td>
+      <td>${b.phone}</td>
+      <td>${b.service}</td>
+      <td>${b.date} ${b.time}</td>
+      <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+      <td>
+        ${b.status==='pending'?`<button class="action-btn confirm" onclick="updateStatus('${b._docId||b.id}','confirmed')">✓ Confirm</button>`:''}
+        ${b.status==='confirmed'?`<button class="action-btn" onclick="updateStatus('${b._docId||b.id}','completed')">Complete</button>`:''}
+        ${b.status!=='cancelled'&&b.status!=='completed'?`<button class="action-btn cancel" onclick="updateStatus('${b._docId||b.id}','cancelled')">✕</button>`:''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterAppointments() {
+  const search = document.getElementById('appt-search')?.value || '';
+  const status = document.getElementById('appt-filter')?.value || '';
+  renderAdminAppointments(search, status);
+}
+
+function updateStatus(id, status) {
+  // Update in Firestore (real-time listener will refresh UI automatically)
+  const b = bookings.find(x => x.id === id || x._docId === String(id));
+  if (b && b._docId) {
+    bookingsRef.doc(b._docId).update({ status })
+      .catch(err => console.warn('updateStatus error:', err));
+  }
+  // Also update local mirror immediately for instant UI feedback
+  const local = bookings.find(x => x.id === id);
+  if (local) local.status = status;
+  updateAdminStats();
+  renderAdminAppointments(
+    document.getElementById('appt-search')?.value||'',
+    document.getElementById('appt-filter')?.value||''
+  );
+}
+
+function renderAdminPatients() {
+  const tbody = document.getElementById('patients-table-body');
+  if (!tbody) return;
+  const patientMap = {};
+  bookings.forEach(b => {
+    if (!patientMap[b.phone]) patientMap[b.phone] = { name: b.name, phone: b.phone, services: [], visits: 0 };
+    patientMap[b.phone].services.push(b.service);
+    patientMap[b.phone].visits++;
+    patientMap[b.phone].lastService = b.service;
+  });
+  const patients = Object.values(patientMap);
+  document.getElementById('patients-count').textContent = `${patients.length} patients`;
+  tbody.innerHTML = patients.map(p => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.phone}</td>
+      <td>${p.lastService}</td>
+      <td>${p.visits}</td>
+      <td style="color:var(--text-light);font-size:11px">—</td>
+    </tr>
+  `).join('');
+}
+
+function renderAdminServices() {
+  const g = document.getElementById('services-admin-grid');
+  if (!g) return;
+  g.innerHTML = SERVICES.map(s => `
+    <div class="service-manage-card">
+      <div class="service-manage-name">${s.name}</div>
+      <div class="service-manage-desc">${s.cat} · ${s.duration}</div>
+      <div class="service-manage-desc" style="margin-bottom:0;color:var(--gold)">${s.price}</div>
+      <div class="service-manage-actions" style="margin-top:12px">
+        <button class="action-btn" onclick="editService(${s.id})">Edit</button>
+        <button class="action-btn cancel" onclick="deleteService(${s.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editService(id) {
+  const s = SERVICES.find(x => x.id === id);
+  if (!s) return;
+  const name = prompt('Service name:', s.name);
+  if (name) s.name = name;
+  const price = prompt('Price:', s.price);
+  if (price) s.price = price;
+  renderAdminServices();
+  renderServices();
+  showToast('Service updated successfully');
+}
+
+function deleteService(id) {
+  if (confirm('Delete this service?')) {
+    const i = SERVICES.findIndex(s => s.id === id);
+    if (i >= 0) SERVICES.splice(i, 1);
+    renderAdminServices();
+    renderServices();
+  }
+}
+
+function addServiceAdmin() {
+  const name = prompt('Service name:');
+  if (!name) return;
+  const cat = prompt('Category:') || 'General';
+  const desc = prompt('Description:') || '';
+  const duration = prompt('Duration:') || '30 min';
+  const price = prompt('Price:') || 'From SAR 800';
+  SERVICES.push({ id: Date.now(), cat, name, desc, duration, price });
+  renderAdminServices();
+  renderServices();
+  showToast('Service added successfully');
+}
+
+function renderAvailability() {
+  const g = document.getElementById('avail-grid');
+  if (!g) return;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  g.innerHTML = days.map((day, dow) => {
+    const slots = AVAILABILITY[dow] || [];
+    return `
+      <div style="display:flex;align-items:flex-start;gap:20px;padding:16px 0;border-bottom:1px solid var(--light-gray)">
+        <div style="width:120px;font-size:12px;font-weight:600;color:var(--text-dark);padding-top:4px">${day}</div>
+        <div style="flex:1">
+          ${slots.length ? 
+            `<div style="display:flex;flex-wrap:wrap;gap:6px">${slots.map(t=>`<span style="background:var(--warm-white);border:1px solid var(--light-gray);padding:4px 10px;font-size:11px">${t}</span>`).join('')}</div>` :
+            `<span style="font-size:12px;color:var(--text-light)">Closed</span>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+// CONTACT FORM
+// ════════════════════════════════════════════════
+function submitContact() {
+  const name = document.getElementById('cf-name').value;
+  const phone = document.getElementById('cf-phone').value;
+  if (!name || !phone) { alert(currentLang==='ar'?'يرجى ملء الحقول المطلوبة':'Please fill in required fields'); return; }
+  showToast(currentLang==='ar'?`شكراً ${name}! سيتم التواصل معك قريباً.`:`Thank you ${name}! We'll be in touch soon.`);
+  document.getElementById('cf-name').value = '';
+  document.getElementById('cf-phone').value = '';
+  document.getElementById('cf-msg').value = '';
+}
+
+// ════════════════════════════════════════════════
+// MOBILE MENU
+// ════════════════════════════════════════════════
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const isOpen = menu.classList.toggle('open');
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+function closeMobileMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ════════════════════════════════════════════════
+// NAV SCROLL
+// ════════════════════════════════════════════════
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('main-nav');
+  nav.classList.toggle('scrolled', window.scrollY > 80);
+});
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+function init() {
+  renderServices();
+  renderBeforeAfter();
+  renderTestimonials();
+  renderFAQ();
+  renderServiceSelect();
+  renderContactServices();
+
+  // Lazy load images (skip hero which is eager)
+  document.querySelectorAll('img:not(.hero-img)').forEach(img => {
+    if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+    if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+    if (img.complete) { img.classList.add('loaded'); }
+    else { img.addEventListener('load', () => img.classList.add('loaded'), { passive: true }); }
+  });
+
+  // Scroll progress bar
+  window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    const bar = document.getElementById('scroll-progress');
+    if (bar) bar.style.width = pct + '%';
+  }, { passive: true });
+
+  // Intersection observer for reveal — with will-change optimization
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.willChange = 'auto';
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('section, #about-strip, .review-card, .service-card').forEach((el, i) => {
+    el.classList.add('reveal');
+    el.style.willChange = 'opacity, transform';
+    // Stagger cards
+    if (el.classList.contains('review-card') || el.classList.contains('service-card')) {
+      el.style.transitionDelay = `${(i % 4) * 60}ms`;
+    }
+    obs.observe(el);
+  });
+}
+
+// ════════════════════════════════════════════════
+// BEFORE/AFTER COMPARISON SLIDER
+// ════════════════════════════════════════════════
+function initBASlider(wrap) {
+  let dragging = false;
+
+  function setPct(pct) {
+    pct = Math.max(5, Math.min(95, pct));
+    const before = wrap.querySelector('.ba-img-before');
+    const handle = wrap.querySelector('.ba-slider-handle');
+    const arrows = wrap.querySelector('.ba-slider-arrows');
+    if (before) before.style.clipPath = `inset(0 ${100-pct}% 0 0)`;
+    if (handle) handle.style.left = pct + '%';
+    if (arrows) arrows.style.opacity = dragging ? '0' : '1';
+    wrap.dataset.pct = pct;
+  }
+
+  function getX(e) {
+    return e.touches ? e.touches[0].clientX : e.clientX;
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const rect = wrap.getBoundingClientRect();
+    const pct = ((getX(e) - rect.left) / rect.width) * 100;
+    setPct(pct);
+    e.preventDefault();
+  }
+
+  wrap.addEventListener('mousedown', e => { dragging = true; onMove(e); });
+  wrap.addEventListener('touchstart', e => { dragging = true; onMove(e); }, { passive: false });
+  document.addEventListener('mouseup', () => { dragging = false; });
+  document.addEventListener('touchend', () => { dragging = false; });
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', e => { if (dragging) onMove(e); }, { passive: false });
+
+  // Start at 50%
+  setPct(50);
+}
+
+// ════════════════════════════════════════════════
+// FAB WHATSAPP PREFILL (update href when booking changes)
+// ════════════════════════════════════════════════
+function updateFabWhatsApp() {
+  const fab = document.getElementById('fab-wa-btn');
+  if (!fab) return;
+  // Build a generic inquiry message if no booking in progress
+  const msg = currentLang === 'ar'
+    ? 'مرحباً، أود الاستفسار عن المواعيد والخدمات المتاحة.'
+    : 'Hello, I\'d like to inquire about available appointments and services.';
+  fab.href = `https://wa.me/201036363722?text=${encodeURIComponent(msg)}`;
+}
+
+init();
+updateFabWhatsApp();</script>
+
+</body>
+</html>
