@@ -1055,7 +1055,7 @@
     <!-- Hero -->
     <section id="hero">
       <div class="hero-bg"></div>
-      <video class="hero-video-bg" autoplay muted loop playsinline preload="none">
+      <video class="hero-video-bg" autoplay muted loop playsinline preload="metadata" poster="assets/images/IMG_2386.jpeg">
         <source src="assets/video/hero.mp4" type="video/mp4">
       </video>
       <div class="hero-texture"></div>
@@ -1621,28 +1621,29 @@ const FAQS = [
 
 // ── Firebase init ────────────────────────────────
 // Config loaded from firebase-config.js (shared with admin.html)
-if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-const db = firebase.firestore();
-const bookingsRef = db.collection('bookings');
 
 // In-memory mirror — kept in sync by real-time listener
 let bookings = [];
+let db = null;
+let bookingsRef = null;
 
-// Real-time listener: updates bookings[] and refreshes admin UI whenever
-// Firestore data changes (new booking, status update from admin.html, etc.)
-bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
-  bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
-  // Refresh admin dashboard if it is currently open
-  const dash = document.getElementById('admin-dashboard');
-  if (dash && dash.style.display !== 'none') {
-    updateAdminStats();
-    renderAdminAppointments(
-      document.getElementById('appt-search')?.value || '',
-      document.getElementById('appt-filter')?.value || ''
-    );
-    renderAdminPatients();
+try {
+  if (typeof firebase !== 'undefined' && typeof FIREBASE_CONFIG !== 'undefined') {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    bookingsRef = db.collection('bookings');
+
+    // Real-time listener: updates bookings[] and refreshes admin UI whenever
+    // Firestore data changes (new booking, status update from admin.html, etc.)
+    bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
+      bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
+    }, err => console.warn('Firestore listener error:', err));
+  } else {
+    console.warn('Firebase not available — running in offline mode');
   }
-}, err => console.warn('Firestore listener error:', err));
+} catch (e) {
+  console.warn('Firebase init error:', e);
+}
 // ─────────────────────────────────────────────────
 
 const AVAILABILITY = {
@@ -2161,9 +2162,11 @@ function confirmBooking() {
     service: booking.service.name,
     date: booking.date, time: booking.time,
     status: 'pending', notes: booking.notes || '',
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    createdAt: (db && firebase && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
   };
-  bookingsRef.add(newBooking).catch(err => console.warn('Save booking error:', err));
+  if (bookingsRef) {
+    bookingsRef.add(newBooking).catch(err => console.warn('Save booking error:', err));
+  }
 
   (async () => {
 

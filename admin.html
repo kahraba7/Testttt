@@ -854,22 +854,35 @@ const SERVICES = [
 
 // ── Firebase init ────────────────────────────────
 // Config loaded from firebase-config.js (shared with index.html)
-if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-const db = firebase.firestore();
-const bookingsRef = db.collection('bookings');
 
 // In-memory mirror kept in sync by real-time listener
 let bookings = [];
+let db = null;
+let bookingsRef = null;
 
-// Start listener immediately — UI refreshes automatically on any change
-// (new bookings from index.html, status edits from this dashboard, etc.)
-bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
-  bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
-  // Refresh whatever admin panel is currently active
-  updateAdminStats();
-  renderAdminAppointments();
-  renderAdminPatients();
-}, err => console.warn('Firestore listener error (admin):', err));
+try {
+  if (typeof firebase !== 'undefined' && typeof FIREBASE_CONFIG !== 'undefined') {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    bookingsRef = db.collection('bookings');
+
+    // Start listener — UI refreshes automatically on any change
+    bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
+      bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
+      // Only refresh dashboard if it is currently visible (user is logged in)
+      const dash = document.getElementById('admin-dashboard');
+      if (dash && dash.classList.contains('active')) {
+        updateAdminStats();
+        renderAdminAppointments();
+        renderAdminPatients();
+      }
+    }, err => console.warn('Firestore listener error (admin):', err));
+  } else {
+    console.warn('Firebase not available — admin running in offline mode');
+  }
+} catch (e) {
+  console.warn('Firebase init error (admin):', e);
+}
 // ─────────────────────────────────────────────────
 
 const AVAILABILITY = {
@@ -1095,15 +1108,16 @@ function actionButtons(b) {
 }
 
 function updateStatus(id, status) {
-  const b = bookings.find(x => x._docId === id || x._docId === String(id));
-  if (b && b._docId) {
-    bookingsRef.doc(b._docId).update({ status })
-      .then(() => showToast('Status updated to: ' + status))
-      .catch(err => { console.warn('updateStatus error:', err); showToast('Error updating status', 'warn'); });
-  }
   // Optimistic local update for instant UI feedback
   const local = bookings.find(x => x._docId === id || x._docId === String(id));
   if (local) local.status = status;
+  if (bookingsRef && local && local._docId) {
+    bookingsRef.doc(local._docId).update({ status })
+      .then(() => showToast('Status updated to: ' + status))
+      .catch(err => { console.warn('updateStatus error:', err); showToast('Error updating status'); });
+  } else {
+    showToast('Status updated (offline mode)');
+  }
   updateAdminStats();
   renderAdminAppointments();
   renderAdminPatients();
