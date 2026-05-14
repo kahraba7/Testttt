@@ -852,24 +852,29 @@ window.addEventListener('unhandledrejection', function(e) {
 });
 
 // ════════════════════════════════════════════════
-// DATA — mirrors index.html booking data
+// DATA — services loaded live from Firestore
 // ════════════════════════════════════════════════
-const SERVICES = [
-  { id: 1, cat: 'Lip Specialist',       name: 'Diamond Lips',      desc: 'Proprietary technique for naturally full, symmetrical lips.', duration: '45–60 min', price: 'From SAR 1,200' },
-  { id: 2, cat: 'Facial Aesthetics',    name: 'Cheek Filler',       desc: 'Restore volume and enhance cheekbone definition.', duration: '30 min',     price: 'From SAR 1,000' },
-  { id: 3, cat: 'Anti-Aging',           name: 'Botox Therapy',      desc: 'Precise neurotoxin treatments to smooth fine lines.', duration: '20–30 min', price: 'From SAR 800'   },
-  { id: 4, cat: 'Skin Health',          name: 'Skin Boosters',      desc: 'Deep hydration via micro-injections of hyaluronic acid.', duration: '45 min',     price: 'From SAR 900'   },
-  { id: 5, cat: 'Regenerative',         name: 'PRP Therapy',        desc: 'Harness your own growth factors to rejuvenate skin.', duration: '60 min',     price: 'From SAR 1,400' },
-  { id: 6, cat: 'Facial Harmonization', name: 'Full Face Design',   desc: 'Comprehensive assessment and multi-area treatment.', duration: '90 min',     price: 'From SAR 2,500' },
+
+// Default seed data — written to Firestore only if the collection is empty
+const SERVICES_SEED = [
+  { _docId: 'diamond-lips',    id: 'diamond-lips',    cat: 'Lip Specialist',       name: 'Diamond Lips',    desc: 'Proprietary technique for naturally full, symmetrical lips.', duration: '45–60 min', price: 'From SAR 1,200', sortOrder: 1 },
+  { _docId: 'cheek-filler',    id: 'cheek-filler',    cat: 'Facial Aesthetics',    name: 'Cheek Filler',    desc: 'Restore volume and enhance cheekbone definition.', duration: '30 min',     price: 'From SAR 1,000', sortOrder: 2 },
+  { _docId: 'botox-therapy',   id: 'botox-therapy',   cat: 'Anti-Aging',           name: 'Botox Therapy',   desc: 'Precise neurotoxin treatments to smooth fine lines.', duration: '20–30 min', price: 'From SAR 800',   sortOrder: 3 },
+  { _docId: 'skin-boosters',   id: 'skin-boosters',   cat: 'Skin Health',          name: 'Skin Boosters',   desc: 'Deep hydration via micro-injections of hyaluronic acid.', duration: '45 min',     price: 'From SAR 900',   sortOrder: 4 },
+  { _docId: 'prp-therapy',     id: 'prp-therapy',     cat: 'Regenerative',         name: 'PRP Therapy',     desc: 'Harness your own growth factors to rejuvenate skin.', duration: '60 min',     price: 'From SAR 1,400', sortOrder: 5 },
+  { _docId: 'full-face-design',id: 'full-face-design',cat: 'Facial Harmonization', name: 'Full Face Design',desc: 'Comprehensive assessment and multi-area treatment.', duration: '90 min',     price: 'From SAR 2,500', sortOrder: 6 },
 ];
+
+// Live in-memory array — kept in sync by Firestore onSnapshot
+let SERVICES = [];
 
 // ── Firebase init ────────────────────────────────
 // Config loaded from firebase-config.js (shared with index.html)
 
-// In-memory mirror kept in sync by real-time listener
 let bookings = [];
 let db = null;
 let bookingsRef = null;
+let servicesRef = null;
 let firestoreReady = false; // becomes true after first snapshot
 
 try {
@@ -877,12 +882,12 @@ try {
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
     bookingsRef = db.collection('bookings');
+    servicesRef  = db.collection('services');
 
-    // Start listener — UI refreshes automatically on any Firestore change
+    // ── Bookings real-time listener ──────────────────
     bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
       bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
       firestoreReady = true;
-      // Refresh dashboard whenever it is visible (logged in)
       const dash = document.getElementById('admin-dashboard');
       if (dash && dash.classList.contains('active')) {
         updateAdminStats();
@@ -890,11 +895,34 @@ try {
         renderAdminPatients();
       }
     }, err => { console.warn('Firestore listener error (admin):', err); firestoreReady = true; });
+
+    // ── Services real-time listener ──────────────────
+    servicesRef.orderBy('sortOrder', 'asc').onSnapshot(snapshot => {
+      if (snapshot.empty) {
+        // First run — seed Firestore with default services
+        const batch = db.batch();
+        SERVICES_SEED.forEach(s => {
+          const { _docId, ...data } = s;
+          batch.set(servicesRef.doc(_docId), data);
+        });
+        batch.commit().catch(e => console.warn('Seed error:', e));
+        // onSnapshot will fire again with the seeded data
+        return;
+      }
+      SERVICES = snapshot.docs.map(doc => ({ _docId: doc.id, id: doc.id, ...doc.data() }));
+      // Refresh services UI if panel is visible
+      const grid = document.getElementById('services-admin-grid');
+      if (grid) renderAdminServices();
+      populateServiceFilter();
+    }, err => console.warn('Services listener error:', err));
+
   } else {
     console.warn('Firebase not available — admin running in offline mode');
+    SERVICES = SERVICES_SEED.map(s => ({ ...s }));
   }
 } catch (e) {
   console.warn('Firebase init error (admin):', e);
+  SERVICES = SERVICES_SEED.map(s => ({ ...s }));
 }
 // ─────────────────────────────────────────────────
 
@@ -1223,17 +1251,17 @@ function renderAdminServices() {
       <div class="service-manage-meta">${s.cat} · ${s.duration}</div>
       <div class="service-manage-price">${s.price}</div>
       <div class="service-manage-actions">
-        <button class="action-btn" onclick="editService(${s.id})">Edit</button>
-        <button class="action-btn cancel" onclick="deleteService(${s.id})">Delete</button>
+        <button class="action-btn" onclick="editService('${s._docId}')">Edit</button>
+        <button class="action-btn cancel" onclick="deleteService('${s._docId}')">Delete</button>
       </div>
     </div>
   `).join('');
 }
 
-function editService(id) {
-  const s = SERVICES.find(x => x.id === id);
+function editService(docId) {
+  const s = SERVICES.find(x => x._docId === docId);
   if (!s) return;
-  document.getElementById('edit-service-id').value = id;
+  document.getElementById('edit-service-id').value = docId;
   document.getElementById('edit-service-name').value = s.name;
   document.getElementById('edit-service-cat').value = s.cat;
   document.getElementById('edit-service-duration').value = s.duration;
@@ -1247,22 +1275,31 @@ function closeEditModal() {
 }
 
 function saveEditService() {
-  const id = parseInt(document.getElementById('edit-service-id').value);
-  const s = SERVICES.find(x => x.id === id);
+  const docId = document.getElementById('edit-service-id').value;
+  const s = SERVICES.find(x => x._docId === docId);
   if (!s) return;
-  const name = document.getElementById('edit-service-name').value.trim();
-  const cat = document.getElementById('edit-service-cat').value.trim();
+  const name     = document.getElementById('edit-service-name').value.trim();
+  const cat      = document.getElementById('edit-service-cat').value.trim();
   const duration = document.getElementById('edit-service-duration').value.trim();
-  const price = document.getElementById('edit-service-price').value.trim();
+  const price    = document.getElementById('edit-service-price').value.trim();
   if (!name) { document.getElementById('edit-service-name').focus(); return; }
-  s.name = name;
-  if (cat) s.cat = cat;
-  if (duration) s.duration = duration;
-  if (price) s.price = price;
+  const updates = {};
+  if (name)     updates.name     = name;
+  if (cat)      updates.cat      = cat;
+  if (duration) updates.duration = duration;
+  if (price)    updates.price    = price;
   closeEditModal();
-  renderAdminServices();
-  populateServiceFilter();
-  showToast('Service updated successfully');
+  if (servicesRef) {
+    servicesRef.doc(docId).update(updates)
+      .then(() => showToast('Service updated successfully'))
+      .catch(e => { console.error('Update error:', e); showToast('Update failed — check console'); });
+  } else {
+    // Offline fallback
+    Object.assign(s, updates);
+    renderAdminServices();
+    populateServiceFilter();
+    showToast('Service updated (offline)');
+  }
 }
 
 // Close modal on overlay click
@@ -1271,45 +1308,59 @@ if (_editModal) _editModal.addEventListener('click', function(e) {
   if (e.target === this) closeEditModal();
 });
 
-function deleteService(id) {
+function deleteService(docId) {
   if (confirm('Delete this service? This cannot be undone.')) {
-    const i = SERVICES.findIndex(s => s.id === id);
-    if (i >= 0) SERVICES.splice(i, 1);
-    renderAdminServices();
-    populateServiceFilter();
-    showToast('Service deleted');
+    if (servicesRef) {
+      servicesRef.doc(docId).delete()
+        .then(() => showToast('Service deleted'))
+        .catch(e => { console.error('Delete error:', e); showToast('Delete failed — check console'); });
+    } else {
+      const i = SERVICES.findIndex(s => s._docId === docId);
+      if (i >= 0) SERVICES.splice(i, 1);
+      renderAdminServices();
+      populateServiceFilter();
+      showToast('Service deleted (offline)');
+    }
   }
 }
 
 function addServiceAdmin() {
-  // Pre-open the edit modal in "add" mode
   document.getElementById('edit-service-id').value = '';
   document.getElementById('edit-service-name').value = '';
   document.getElementById('edit-service-cat').value = '';
   document.getElementById('edit-service-duration').value = '30 min';
   document.getElementById('edit-service-price').value = 'From SAR 800';
-  // Temporarily override save to "add" behaviour
   document.querySelector('.edit-modal-title').textContent = 'Add Service';
   document.querySelector('.edit-modal-sub').textContent = 'Enter new service details';
   document.querySelector('.edit-modal-save').onclick = function() {
-    const name = document.getElementById('edit-service-name').value.trim();
+    const name     = document.getElementById('edit-service-name').value.trim();
+    const cat      = document.getElementById('edit-service-cat').value.trim() || 'General';
+    const duration = document.getElementById('edit-service-duration').value.trim() || '30 min';
+    const price    = document.getElementById('edit-service-price').value.trim() || 'From SAR 800';
     if (!name) { document.getElementById('edit-service-name').focus(); return; }
-    SERVICES.push({
-      id: Date.now(),
-      cat: document.getElementById('edit-service-cat').value.trim() || 'General',
-      name,
-      desc: '',
-      duration: document.getElementById('edit-service-duration').value.trim() || '30 min',
-      price: document.getElementById('edit-service-price').value.trim() || 'From SAR 800',
-    });
+    const newService = {
+      cat, name, desc: '', duration, price,
+      sortOrder: SERVICES.length + 1,
+      createdAt: firebase.firestore ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
+    };
+    // Build a stable slug-based doc ID
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const docId = slug + '-' + Date.now();
     closeEditModal();
-    renderAdminServices();
-    populateServiceFilter();
-    // Restore save button to normal edit mode
+    // Restore modal to edit mode
     document.querySelector('.edit-modal-title').textContent = 'Edit Service';
     document.querySelector('.edit-modal-sub').textContent = 'Update service details';
     document.querySelector('.edit-modal-save').onclick = saveEditService;
-    showToast('Service added successfully');
+    if (servicesRef) {
+      servicesRef.doc(docId).set(newService)
+        .then(() => showToast('Service added successfully'))
+        .catch(e => { console.error('Add error:', e); showToast('Add failed — check console'); });
+    } else {
+      SERVICES.push({ _docId: docId, id: docId, ...newService });
+      renderAdminServices();
+      populateServiceFilter();
+      showToast('Service added (offline)');
+    }
   };
   document.getElementById('edit-service-modal').classList.add('open');
   document.getElementById('edit-service-name').focus();

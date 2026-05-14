@@ -1595,14 +1595,19 @@
 // ════════════════════════════════════════════════
 // DATA STORE
 // ════════════════════════════════════════════════
-const SERVICES = [
-  { id: 1, cat: 'Lip Specialist', catAr: 'أخصائية الشفاه', name: 'Diamond Lips', nameAr: 'شفاه الماس', desc: 'Proprietary technique for naturally full, symmetrical lips balanced with your smile architecture.', descAr: 'تقنية خاصة لشفاه ممتلئة طبيعية ومتناسقة مع هندسة ابتسامتك.', duration: '45–60 min', durationMin: 60, price: 'From SAR 1,200' },
-  { id: 2, cat: 'Facial Aesthetics', catAr: 'جماليات الوجه', name: 'Cheek Filler', nameAr: 'حشو الخدود', desc: 'Restore volume and enhance cheekbone definition with premium hyaluronic acid fillers.', descAr: 'استعادة الحجم وإبراز عظام الخد بحشوات حمض الهيالورونيك الفاخرة.', duration: '30 min', durationMin: 30, price: 'From SAR 1,000' },
-  { id: 3, cat: 'Anti-Aging', catAr: 'مكافحة الشيخوخة', name: 'Botox Therapy', nameAr: 'علاج البوتوكس', desc: 'Precise neurotoxin treatments to smooth fine lines and prevent new ones from forming.', descAr: 'حقن بوتوكس دقيقة لتنعيم الخطوط الدقيقة ومنع تكوّن جديدة.', duration: '20–30 min', durationMin: 30, price: 'From SAR 800' },
-  { id: 4, cat: 'Skin Health', catAr: 'صحة البشرة', name: 'Skin Boosters', nameAr: 'منشطات البشرة', desc: 'Deep hydration treatment using micro-injections of hyaluronic acid for radiant, plump skin.', descAr: 'علاج ترطيب عميق بالحقن الدقيق لحمض الهيالورونيك للبشرة المشرقة.', duration: '45 min', durationMin: 45, price: 'From SAR 900' },
-  { id: 5, cat: 'Regenerative', catAr: 'تجديدي', name: 'PRP Therapy', nameAr: 'علاج PRP', desc: 'Harness your body\'s own growth factors to rejuvenate skin texture and promote collagen.', descAr: 'استخدام عوامل النمو الطبيعية لتجديد نسيج البشرة وتعزيز الكولاجين.', duration: '60 min', durationMin: 60, price: 'From SAR 1,400' },
-  { id: 6, cat: 'Facial Harmonization', catAr: 'تناسق الوجه', name: 'Full Face Design', nameAr: 'تصميم الوجه الكامل', desc: 'Comprehensive assessment and multi-area treatment for complete facial harmony and balance.', descAr: 'تقييم شامل وعلاج متعدد المناطق لتحقيق التناسق الكامل للوجه.', duration: '90 min', durationMin: 90, price: 'From SAR 2,500' },
+
+// Default services (used as fallback if Firestore is unavailable)
+const SERVICES_DEFAULT = [
+  { id: 'diamond-lips',    cat: 'Lip Specialist',       catAr: 'أخصائية الشفاه',    name: 'Diamond Lips',    nameAr: 'شفاه الماس',         desc: 'Proprietary technique for naturally full, symmetrical lips balanced with your smile architecture.', descAr: 'تقنية خاصة لشفاه ممتلئة طبيعية ومتناسقة مع هندسة ابتسامتك.', duration: '45–60 min', durationMin: 60, price: 'From SAR 1,200' },
+  { id: 'cheek-filler',    cat: 'Facial Aesthetics',    catAr: 'جماليات الوجه',      name: 'Cheek Filler',    nameAr: 'حشو الخدود',          desc: 'Restore volume and enhance cheekbone definition with premium hyaluronic acid fillers.', descAr: 'استعادة الحجم وإبراز عظام الخد بحشوات حمض الهيالورونيك الفاخرة.', duration: '30 min', durationMin: 30, price: 'From SAR 1,000' },
+  { id: 'botox-therapy',   cat: 'Anti-Aging',           catAr: 'مكافحة الشيخوخة',   name: 'Botox Therapy',   nameAr: 'علاج البوتوكس',       desc: 'Precise neurotoxin treatments to smooth fine lines and prevent new ones from forming.', descAr: 'حقن بوتوكس دقيقة لتنعيم الخطوط الدقيقة ومنع تكوّن جديدة.', duration: '20–30 min', durationMin: 30, price: 'From SAR 800' },
+  { id: 'skin-boosters',   cat: 'Skin Health',          catAr: 'صحة البشرة',         name: 'Skin Boosters',   nameAr: 'منشطات البشرة',       desc: 'Deep hydration treatment using micro-injections of hyaluronic acid for radiant, plump skin.', descAr: 'علاج ترطيب عميق بالحقن الدقيق لحمض الهيالورونيك للبشرة المشرقة.', duration: '45 min', durationMin: 45, price: 'From SAR 900' },
+  { id: 'prp-therapy',     cat: 'Regenerative',         catAr: 'تجديدي',             name: 'PRP Therapy',     nameAr: 'علاج PRP',            desc: "Harness your body's own growth factors to rejuvenate skin texture and promote collagen.", descAr: 'استخدام عوامل النمو الطبيعية لتجديد نسيج البشرة وتعزيز الكولاجين.', duration: '60 min', durationMin: 60, price: 'From SAR 1,400' },
+  { id: 'full-face-design',cat: 'Facial Harmonization', catAr: 'تناسق الوجه',        name: 'Full Face Design',nameAr: 'تصميم الوجه الكامل',  desc: 'Comprehensive assessment and multi-area treatment for complete facial harmony and balance.', descAr: 'تقييم شامل وعلاج متعدد المناطق لتحقيق التناسق الكامل للوجه.', duration: '90 min', durationMin: 90, price: 'From SAR 2,500' },
 ];
+
+// Live array — populated by Firestore onSnapshot; falls back to defaults
+let SERVICES = SERVICES_DEFAULT.map(s => ({ ...s }));
 
 const REVIEWS = [
   { stars: 5, text: 'Dr. Samar transformed my lips in the most natural way. I\'ve had fillers before but this is on a completely different level — she truly understands how lips should look.', name: 'Noura A.', sub: 'Diamond Lips Patient' },
@@ -1626,12 +1631,14 @@ const FAQS = [
 let bookings = [];
 let db = null;
 let bookingsRef = null;
+let servicesRef = null;
 
 try {
   if (typeof firebase !== 'undefined' && typeof FIREBASE_CONFIG !== 'undefined') {
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
     bookingsRef = db.collection('bookings');
+    servicesRef  = db.collection('services');
 
     // Real-time listener: keeps bookings[] in sync with Firestore.
     // Also refreshes time slots if booking modal is open on step 3.
@@ -1645,6 +1652,28 @@ try {
         }
       } catch(e) { /* safe */ }
     }, err => console.warn('Firestore listener error:', err));
+
+    // Real-time services listener: keeps SERVICES[] in sync with Firestore
+    // so price changes in admin reflect immediately on the frontend.
+    servicesRef.orderBy('sortOrder', 'asc').onSnapshot(snapshot => {
+      if (snapshot.empty) return; // wait for admin to seed
+      SERVICES = snapshot.docs.map(doc => {
+        const d = doc.data();
+        return {
+          id: doc.id, _docId: doc.id,
+          cat: d.cat || '', catAr: d.catAr || d.cat || '',
+          name: d.name || '', nameAr: d.nameAr || d.name || '',
+          desc: d.desc || '', descAr: d.descAr || d.desc || '',
+          duration: d.duration || '', durationMin: d.durationMin || 30,
+          price: d.price || ''
+        };
+      });
+      // Refresh all service-dependent UI
+      try { renderServices(); } catch(e) {}
+      try { renderServiceSelect(); } catch(e) {}
+      try { renderContactServices(); } catch(e) {}
+    }, err => console.warn('Services listener error:', err));
+
   } else {
     console.warn('Firebase not available — running in offline mode');
   }
@@ -1823,7 +1852,7 @@ function renderServices() {
         <span class="service-duration">⏱ ${s.duration}</span>
         <span>${s.price}</span>
       </div>
-      <button class="service-book" onclick="openBookingService(${s.id})">${currentLang==='ar'?'احجزي الآن':'Book Now'}</button>
+      <button class="service-book" onclick="openBookingService('${s.id}')">${currentLang==='ar'?'احجزي الآن':'Book Now'}</button>
     </div>
   `).join('');
 }
@@ -1992,7 +2021,7 @@ function renderServiceSelect() {
   const g = document.getElementById('service-select-grid');
   if (!g) return;
   g.innerHTML = SERVICES.map(s => `
-    <div class="service-option ${booking.service?.id===s.id?'selected':''}" data-id="${s.id}" onclick="selectService(${s.id}, this)">
+    <div class="service-option ${booking.service?.id===s.id?'selected':''}" data-id="${s.id}" onclick="selectService('${s.id}', this)">
       <div class="service-option-name">${currentLang==='ar'?(s.nameAr||s.name):s.name}</div>
       <div class="service-option-dur">${s.duration}</div>
     </div>
@@ -2377,45 +2406,68 @@ function renderAdminServices() {
       <div class="service-manage-desc">${s.cat} · ${s.duration}</div>
       <div class="service-manage-desc" style="margin-bottom:0;color:var(--gold)">${s.price}</div>
       <div class="service-manage-actions" style="margin-top:12px">
-        <button class="action-btn" onclick="editService(${s.id})">Edit</button>
-        <button class="action-btn cancel" onclick="deleteService(${s.id})">Delete</button>
+        <button class="action-btn" onclick="editService('${s._docId}')">Edit</button>
+        <button class="action-btn cancel" onclick="deleteService('${s._docId}')">Delete</button>
       </div>
     </div>
   `).join('');
 }
 
-function editService(id) {
-  const s = SERVICES.find(x => x.id === id);
+function editService(docId) {
+  const s = SERVICES.find(x => x._docId === docId);
   if (!s) return;
-  const name = prompt('Service name:', s.name);
-  if (name) s.name = name;
+  const name  = prompt('Service name:', s.name);
   const price = prompt('Price:', s.price);
-  if (price) s.price = price;
-  renderAdminServices();
-  renderServices();
-  showToast('Service updated successfully');
-}
-
-function deleteService(id) {
-  if (confirm('Delete this service?')) {
-    const i = SERVICES.findIndex(s => s.id === id);
-    if (i >= 0) SERVICES.splice(i, 1);
+  if (!name) return;
+  const updates = { name };
+  if (price) updates.price = price;
+  if (servicesRef) {
+    servicesRef.doc(docId).update(updates)
+      .then(() => showToast('Service updated successfully'))
+      .catch(e => console.error('Update error:', e));
+  } else {
+    Object.assign(s, updates);
     renderAdminServices();
     renderServices();
+    showToast('Service updated successfully');
+  }
+}
+
+function deleteService(docId) {
+  if (confirm('Delete this service?')) {
+    if (servicesRef) {
+      servicesRef.doc(docId).delete()
+        .then(() => showToast('Service deleted'))
+        .catch(e => console.error('Delete error:', e));
+    } else {
+      const i = SERVICES.findIndex(s => s._docId === docId);
+      if (i >= 0) SERVICES.splice(i, 1);
+      renderAdminServices();
+      renderServices();
+    }
   }
 }
 
 function addServiceAdmin() {
-  const name = prompt('Service name:');
+  const name     = prompt('Service name:');
   if (!name) return;
-  const cat = prompt('Category:') || 'General';
-  const desc = prompt('Description:') || '';
+  const cat      = prompt('Category:') || 'General';
+  const desc     = prompt('Description:') || '';
   const duration = prompt('Duration:') || '30 min';
-  const price = prompt('Price:') || 'From SAR 800';
-  SERVICES.push({ id: Date.now(), cat, name, desc, duration, price });
-  renderAdminServices();
-  renderServices();
-  showToast('Service added successfully');
+  const price    = prompt('Price:') || 'From SAR 800';
+  const slug  = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const docId = slug + '-' + Date.now();
+  const newService = { cat, name, desc, duration, price, sortOrder: SERVICES.length + 1 };
+  if (servicesRef) {
+    servicesRef.doc(docId).set(newService)
+      .then(() => showToast('Service added successfully'))
+      .catch(e => console.error('Add error:', e));
+  } else {
+    SERVICES.push({ _docId: docId, id: docId, ...newService });
+    renderAdminServices();
+    renderServices();
+    showToast('Service added successfully');
+  }
 }
 
 function renderAvailability() {
