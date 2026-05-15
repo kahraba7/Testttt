@@ -287,7 +287,14 @@
   }
   .doctor-creds-list .cred-item { color: rgba(250,248,245,0.6); }
 
-  /* ── OUR DOCTORS SECTION ── */
+  /* ── OUR TEAM SECTION (secondary doctors) ── */
+  #our-team { background: var(--warm-white); }
+  #our-team .section-label { color: var(--gold); }
+  #our-team .section-title { color: var(--text-dark); }
+  #our-team .section-title em { color: var(--deep-gold); }
+  #our-team .doctors-grid { background: var(--warm-white); }
+
+  /* ── OUR DOCTORS SECTION (founders) ── */
   #our-doctors { background: var(--charcoal); padding-bottom: 0; }
   #our-doctors > .section-label,
   #our-doctors > .section-title {
@@ -1233,11 +1240,8 @@
 
     <!-- Our Doctors Section -->
     <section id="our-doctors">
-      <div class="section-label" id="sec-label-doctors">Our Medical Team</div>
+      <div class="section-label" id="sec-label-doctors">The Founders</div>
       <h2 class="section-title" id="sec-title-doctors">Meet the <em>Founders</em></h2>
-
-      <!-- Doctors Grid (all 3 equal) -->
-      <div class="doctors-grid" id="doctors-grid"></div>
 
       <!-- Dr. Samar -->
       <div class="doctor-section-inner" style="border-top:1px solid rgba(212,184,150,0.12);margin-top:3px;">
@@ -1246,7 +1250,7 @@
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
-          <div class="section-label">Co-Founder</div>
+          <div class="section-label">Founder</div>
           <h2 class="doctor-name-title">Dr. Samar<br><em>Yehia</em></h2>
           <div class="doctor-creds-list">
             <div class="cred-item"><div class="cred-bullet"></div>Board Certified Aesthetic Medicine Physician</div>
@@ -1266,7 +1270,7 @@
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
-          <div class="section-label">Co-Founder</div>
+          <div class="section-label">Founder</div>
           <h2 class="doctor-name-title">Dr. Muhammed<br><em>Darwish</em></h2>
           <div class="doctor-creds-list">
             <div class="cred-item"><div class="cred-bullet"></div>Aesthetic Medicine Physician</div>
@@ -1286,7 +1290,7 @@
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
-          <div class="section-label">Co-Founder</div>
+          <div class="section-label">Founder</div>
           <h2 class="doctor-name-title">Dr. Noha<br><em>Elsoudy</em></h2>
           <div class="doctor-creds-list">
             <div class="cred-item"><div class="cred-bullet"></div>Aesthetic Medicine Physician</div>
@@ -1298,6 +1302,13 @@
           <button class="btn-primary" onclick="openBookingWithDoctor('dr-noha')">Book with Dr. Noha</button>
         </div>
       </div>
+    </section>
+
+    <!-- Our Team Section (additional clinic doctors) -->
+    <section id="our-team" style="background:var(--warm-white);padding-top:80px;padding-bottom:80px;">
+      <div class="section-label" id="sec-label-team">Our Clinical Team</div>
+      <h2 class="section-title" id="sec-title-team">More of Our <em>Experts</em></h2>
+      <div class="doctors-grid" id="doctors-grid" style="margin-top:60px;"></div>
     </section>
 
     <!-- About Strip -->
@@ -1797,27 +1808,19 @@
 // ════════════════════════════════════════════════
 const DOCTORS = [
   {
-    id: 'dr-samar',
-    name: 'Dr. Samar Yehia',
-    nameAr: 'د. سمر يحيى',
-    role: 'Co-Founder · Aesthetic Medicine',
-    roleAr: 'مؤسسة · طب تجميلي',
-    img: 'dr_samar.jpg',
-  },
-  {
-    id: 'dr-muhammed',
-    name: 'Dr. Muhammed Darwish',
-    nameAr: 'د. محمد درويش',
-    role: 'Co-Founder · Aesthetic Medicine',
-    roleAr: 'مؤسس · طب تجميلي',
+    id: 'dr-omar',
+    name: 'Dr. Omar Ali',
+    nameAr: 'د. عمر علي',
+    role: 'Aesthetic Medicine · Injectables',
+    roleAr: 'طب تجميلي · الحقن',
     img: 'dr_muhammed.jpg',
   },
   {
-    id: 'dr-noha',
-    name: 'Dr. Noha Elsoudy',
-    nameAr: 'د. نهى السودي',
-    role: 'Co-Founder · Aesthetic Medicine',
-    roleAr: 'مؤسسة · طب تجميلي',
+    id: 'dr-malak',
+    name: 'Dr. Malak Mohamed',
+    nameAr: 'د. ملك محمد',
+    role: 'Aesthetic Medicine · Skin Specialist',
+    roleAr: 'طب تجميلي · أخصائية البشرة',
     img: 'dr_noha.jpg',
   },
 ];
@@ -2141,17 +2144,22 @@ function renderBeforeAfter() {
   const g = document.getElementById('ba-grid');
   if (!g) return;
 
-  // Premium gallery items from all doctors
+  // Full gallery — all available images across all doctors
   const items = [
+    { img: 'IMG_2389.jpeg',    doctor: 'Dr. Samar Yehia',      treatment: currentLang==='ar'?'شفاه الماس':'Diamond Lips',            badge: 'Before & After', wide: true  },
+    { img: 'IMG_2386.jpeg',    doctor: 'Dr. Samar Yehia',      treatment: currentLang==='ar'?'تكبير الشفاه':'Lip Enhancement',        badge: 'Before & After', wide: false },
+    { img: 'IMG_2387.jpeg',    doctor: 'Dr. Samar Yehia',      treatment: currentLang==='ar'?'تصميم الشفاه':'Lip Design',             badge: 'Before & After', wide: false },
     { img: 'ba_mahmoud_1.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه · طبيعي':'Lip Filler · Natural One', badge: 'Before & After', wide: false },
     { img: 'ba_mahmoud_2.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه · طبيعي':'Lip Filler · Natural One', badge: 'Before & After', wide: false },
-    { img: 'ba_noha_1.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'تصميم الشفاه':'Designed Lips', badge: 'Before & After', wide: false },
-    { img: 'ba_mahmoud_3.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تحسين الخدود وتحت العين':'Cheeks & Under Eye', badge: 'Before & After', wide: true },
-    { img: 'ba_noha_2.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'ابتسامة لثوية':'Gummy Smile', badge: 'Before & After', wide: false },
-    { img: 'ba_noha_3.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Enhancement', badge: 'Before & After', wide: false },
-    { img: 'ba_mahmoud_4.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تصميم الشفاه':'Lip Design', badge: 'Before & After', wide: false },
-    { img: 'ba_noha_4.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'منشطات البشرة':'Skin Boosters', badge: 'After', wide: false },
-    { img: 'ba_mahmoud_5.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Filler', badge: 'Before & After', wide: false },
+    { img: 'ba_noha_1.jpg',    doctor: 'Dr. Noha Elsoudy',     treatment: currentLang==='ar'?'تصميم الشفاه':'Designed Lips',          badge: 'Before & After', wide: false },
+    { img: 'ba_mahmoud_3.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تحسين الخدود وتحت العين':'Cheeks & Under Eye', badge: 'Before & After', wide: true  },
+    { img: 'ba_noha_2.jpg',    doctor: 'Dr. Noha Elsoudy',     treatment: currentLang==='ar'?'ابتسامة لثوية':'Gummy Smile',           badge: 'Before & After', wide: false },
+    { img: 'ba_noha_3.jpg',    doctor: 'Dr. Noha Elsoudy',     treatment: currentLang==='ar'?'حقن الشفاه':'Lip Enhancement',          badge: 'Before & After', wide: false },
+    { img: 'IMG_2388.jpeg',    doctor: 'Dr. Samar Yehia',      treatment: currentLang==='ar'?'نتائج شفاه الماس':'Diamond Lips Result', badge: 'After',          wide: false },
+    { img: 'ba_mahmoud_4.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تصميم الشفاه':'Lip Design',             badge: 'Before & After', wide: false },
+    { img: 'ba_noha_4.jpg',    doctor: 'Dr. Noha Elsoudy',     treatment: currentLang==='ar'?'تناسق الوجه':'Facial Harmony',          badge: 'After',          wide: false },
+    { img: 'ba_noha_5.jpg',    doctor: 'Dr. Noha Elsoudy',     treatment: currentLang==='ar'?'منشطات البشرة':'Skin Boosters',         badge: 'After',          wide: false },
+    { img: 'ba_mahmoud_5.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Filler',               badge: 'Before & After', wide: false },
   ];
 
   g.className = 'ba-gallery';
