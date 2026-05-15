@@ -1180,14 +1180,14 @@
     <!-- Hero -->
     <section id="hero">
       <div class="hero-bg"></div>
-      <video class="hero-video-bg" autoplay muted loop playsinline preload="metadata" poster="assets/images/dr_samar.jpg">
-        <source src="assets/video/hero.mp4" type="video/mp4">
+      <video class="hero-video-bg" autoplay muted loop playsinline preload="metadata" poster="dr_samar.jpg">
+        <source src="hero.mp4" type="video/mp4">
       </video>
       <div class="hero-texture"></div>
       <div class="hero-accent"></div>
       <div class="hero-line"></div>
       <div class="hero-img-wrap">
-        <img src="assets/images/dr_samar.jpg" alt="REJOV Clinic" class="hero-img" loading="eager" decoding="async" fetchpriority="high">
+        <img src="dr_samar.jpg" alt="REJOV Clinic" class="hero-img" loading="eager" decoding="async" fetchpriority="high">
         <div class="hero-img-overlay"></div>
       </div>
       <div class="hero-content">
@@ -1242,7 +1242,7 @@
       <!-- Dr. Samar -->
       <div class="doctor-section-inner" style="border-top:1px solid rgba(212,184,150,0.12);margin-top:3px;">
         <div class="doctor-img-col">
-          <img src="assets/images/dr_samar.jpg" alt="Dr. Samar Yehia" loading="lazy" decoding="async">
+          <img src="dr_samar.jpg" alt="Dr. Samar Yehia" loading="lazy" decoding="async">
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
@@ -1262,7 +1262,7 @@
       <!-- Dr. Muhammed -->
       <div class="doctor-section-inner doctor-section-reverse" style="border-top:1px solid rgba(212,184,150,0.12);">
         <div class="doctor-img-col">
-          <img src="assets/images/dr_muhammed.jpg" alt="Dr. Muhammed Darwish" loading="lazy" decoding="async">
+          <img src="dr_muhammed.jpg" alt="Dr. Muhammed Darwish" loading="lazy" decoding="async">
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
@@ -1282,7 +1282,7 @@
       <!-- Dr. Noha -->
       <div class="doctor-section-inner" style="border-top:1px solid rgba(212,184,150,0.12);">
         <div class="doctor-img-col">
-          <img src="assets/images/dr_noha.jpg" alt="Dr. Noha Elsoudy" loading="lazy" decoding="async">
+          <img src="dr_noha.jpg" alt="Dr. Noha Elsoudy" loading="lazy" decoding="async">
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
@@ -1411,7 +1411,7 @@
     <div id="about-page">
       <div class="about-hero">
         <div class="about-hero-img">
-          <img src="assets/images/dr_samar.jpg" alt="Dr. Samar Yehia">
+          <img src="dr_samar.jpg" alt="Dr. Samar Yehia">
         </div>
         <div class="about-hero-content">
           <div class="section-label" style="color:var(--gold)" id="about-label">The Founders</div>
@@ -1802,7 +1802,7 @@ const DOCTORS = [
     nameAr: 'د. سمر يحيى',
     role: 'Co-Founder · Aesthetic Medicine',
     roleAr: 'مؤسسة · طب تجميلي',
-    img: 'assets/images/dr_samar.jpg',
+    img: 'dr_samar.jpg',
   },
   {
     id: 'dr-muhammed',
@@ -1810,7 +1810,7 @@ const DOCTORS = [
     nameAr: 'د. محمد درويش',
     role: 'Co-Founder · Aesthetic Medicine',
     roleAr: 'مؤسس · طب تجميلي',
-    img: 'assets/images/dr_muhammed.jpg',
+    img: 'dr_muhammed.jpg',
   },
   {
     id: 'dr-noha',
@@ -1818,7 +1818,7 @@ const DOCTORS = [
     nameAr: 'د. نهى السودي',
     role: 'Co-Founder · Aesthetic Medicine',
     roleAr: 'مؤسسة · طب تجميلي',
-    img: 'assets/images/dr_noha.jpg',
+    img: 'dr_noha.jpg',
   },
 ];
 
@@ -2143,15 +2143,15 @@ function renderBeforeAfter() {
 
   // Premium gallery items from all doctors
   const items = [
-    { img: 'assets/images/ba_mahmoud_1.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه · طبيعي':'Lip Filler · Natural One', badge: 'Before & After', wide: false },
-    { img: 'assets/images/ba_mahmoud_2.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه · طبيعي':'Lip Filler · Natural One', badge: 'Before & After', wide: false },
-    { img: 'assets/images/ba_noha_1.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'تصميم الشفاه':'Designed Lips', badge: 'Before & After', wide: false },
-    { img: 'assets/images/ba_mahmoud_3.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تحسين الخدود وتحت العين':'Cheeks & Under Eye', badge: 'Before & After', wide: true },
-    { img: 'assets/images/ba_noha_2.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'ابتسامة لثوية':'Gummy Smile', badge: 'Before & After', wide: false },
-    { img: 'assets/images/ba_noha_3.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Enhancement', badge: 'Before & After', wide: false },
-    { img: 'assets/images/ba_mahmoud_4.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تصميم الشفاه':'Lip Design', badge: 'Before & After', wide: false },
-    { img: 'assets/images/ba_noha_4.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'منشطات البشرة':'Skin Boosters', badge: 'After', wide: false },
-    { img: 'assets/images/ba_mahmoud_5.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Filler', badge: 'Before & After', wide: false },
+    { img: 'ba_mahmoud_1.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه · طبيعي':'Lip Filler · Natural One', badge: 'Before & After', wide: false },
+    { img: 'ba_mahmoud_2.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه · طبيعي':'Lip Filler · Natural One', badge: 'Before & After', wide: false },
+    { img: 'ba_noha_1.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'تصميم الشفاه':'Designed Lips', badge: 'Before & After', wide: false },
+    { img: 'ba_mahmoud_3.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تحسين الخدود وتحت العين':'Cheeks & Under Eye', badge: 'Before & After', wide: true },
+    { img: 'ba_noha_2.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'ابتسامة لثوية':'Gummy Smile', badge: 'Before & After', wide: false },
+    { img: 'ba_noha_3.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Enhancement', badge: 'Before & After', wide: false },
+    { img: 'ba_mahmoud_4.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تصميم الشفاه':'Lip Design', badge: 'Before & After', wide: false },
+    { img: 'ba_noha_4.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'منشطات البشرة':'Skin Boosters', badge: 'After', wide: false },
+    { img: 'ba_mahmoud_5.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Filler', badge: 'Before & After', wide: false },
   ];
 
   g.className = 'ba-gallery';
