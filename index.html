@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dr. Samar Yehia — REJOV Clinic</title>
+<title>REJOV Clinic — Premium Aesthetics · Sheikh Zayed</title>
 <!-- Firebase SDK (v10 modular via CDN compat build) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -412,6 +412,56 @@
   #before-after { background: var(--charcoal); }
   #before-after .section-title { color: var(--cream); }
   #before-after .section-label { color: var(--gold); }
+
+  /* ── PREMIUM GALLERY LAYOUT ── */
+  .ba-gallery {
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+  }
+  .ba-gallery-item {
+    position: relative; overflow: hidden; cursor: pointer;
+    aspect-ratio: 3/4;
+  }
+  .ba-gallery-item.wide {
+    grid-column: span 2;
+    aspect-ratio: unset;
+  }
+  .ba-gallery-item img {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.4,0,0.2,1), filter 0.4s;
+    filter: grayscale(15%);
+  }
+  .ba-gallery-item:hover img { transform: scale(1.04); filter: grayscale(0%); }
+  .ba-gallery-caption {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 32px 24px 24px;
+    background: linear-gradient(to top, rgba(13,11,9,0.92) 0%, transparent 100%);
+  }
+  .ba-gallery-doctor {
+    font-size: 9px; letter-spacing: 3px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .ba-gallery-treatment {
+    font-family: var(--font-display); font-size: 18px;
+    color: var(--cream); font-weight: 300; line-height: 1.2;
+  }
+  .ba-gallery-badge {
+    position: absolute; top: 16px; left: 16px;
+    background: rgba(13,11,9,0.75);
+    border: 1px solid rgba(212,184,150,0.3);
+    padding: 4px 12px; font-size: 9px; letter-spacing: 2px;
+    color: var(--champagne); text-transform: uppercase;
+  }
+  @media (max-width: 900px) {
+    .ba-gallery { grid-template-columns: 1fr; }
+    .ba-gallery-item.wide { grid-column: 1; }
+    .ba-gallery-item { aspect-ratio: 4/3; }
+  }
+
+  /* Keep old .ba-card styles for slider mode */
   .ba-layout {
     margin-top: 60px;
     display: grid;
@@ -1039,6 +1089,8 @@
     .strip-item { padding: 24px 20px; border-bottom: 1px solid rgba(212,184,150,0.1); }
     .services-grid { grid-template-columns: 1fr; gap: 1px; }
     .ba-layout { grid-template-columns: 1fr; }
+    .ba-gallery { grid-template-columns: 1fr; }
+    .ba-gallery-item.wide { grid-column: 1; }
     .ba-card.ba-main { grid-column: 1; grid-row: auto; aspect-ratio: 3/4; }
     .ba-card.ba-secondary { grid-column: 1; aspect-ratio: 3/2; }
     .testimonials-wrap { grid-template-columns: 1fr; }
@@ -1097,7 +1149,7 @@
 <nav id="main-nav">
   <div class="logo" onclick="showPage('home')">
     <div class="logo-main" id="logo-text">REJOV</div>
-    <div class="logo-sub" id="logo-sub">DUAL EXPERTISE IN AESTHETICS</div>
+    <div class="logo-sub" id="logo-sub">PREMIUM AESTHETICS · 3 FOUNDERS</div>
   </div>
   <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -1128,14 +1180,14 @@
     <!-- Hero -->
     <section id="hero">
       <div class="hero-bg"></div>
-      <video class="hero-video-bg" autoplay muted loop playsinline preload="metadata" poster="dr_samar.jpg">
-        <source src="hero.mp4" type="video/mp4">
+      <video class="hero-video-bg" autoplay muted loop playsinline preload="metadata" poster="assets/images/dr_samar.jpg">
+        <source src="assets/video/hero.mp4" type="video/mp4">
       </video>
       <div class="hero-texture"></div>
       <div class="hero-accent"></div>
       <div class="hero-line"></div>
       <div class="hero-img-wrap">
-        <img src="dr_samar.jpg" alt="Dr. Samar Yehia" class="hero-img" loading="eager" decoding="async" fetchpriority="high">
+        <img src="assets/images/dr_samar.jpg" alt="REJOV Clinic" class="hero-img" loading="eager" decoding="async" fetchpriority="high">
         <div class="hero-img-overlay"></div>
       </div>
       <div class="hero-content">
@@ -1143,10 +1195,10 @@
         <h1 class="hero-title" id="hero-title">The Art of<br><em>Natural Beauty</em></h1>
         <div class="hero-subtitle" id="hero-sub">Natural refinement &amp; bold trends</div>
         <div class="hero-divider"></div>
-        <p class="hero-desc" id="hero-desc">Dual expertise in aesthetics — where precision science meets artistry. Specializing in injectables, advanced skin, and beauty treatments, every result uniquely designed for you.</p>
+        <p class="hero-desc" id="hero-desc">A collective of aesthetic medicine founders — where precision science meets artistry. Specializing in injectables, advanced skin, and beauty treatments, every result uniquely designed for you.</p>
         <div class="hero-actions">
           <button class="btn-primary" onclick="openBooking()" id="hero-cta1">Book Consultation</button>
-          <button class="btn-outline" onclick="document.getElementById('doctor-section').scrollIntoView({behavior:'smooth'})" id="hero-cta2">Meet Dr. Samar</button>
+          <button class="btn-outline" onclick="document.getElementById('our-doctors').scrollIntoView({behavior:'smooth'})" id="hero-cta2">Meet Our Doctors</button>
         </div>
       </div>
       <div class="hero-trust" id="hero-trust">
@@ -1166,66 +1218,84 @@
       <div class="scroll-hint" id="scroll-hint">SCROLL</div>
     </section>
 
-    <!-- Doctor Section -->
-    <section id="doctor-section">
-      <div class="doctor-section-inner">
-        <div class="doctor-img-col">
-          <img src="dr_samar.jpg" alt="Dr. Samar Yehia" loading="lazy" decoding="async">
-          <div class="doctor-img-border"></div>
-        </div>
-        <div class="doctor-info-col">
-          <div class="section-label" id="doctor-label-home">The Doctors</div>
-          <h2 class="doctor-name-title" id="doctor-name-home">Dr. Samar<br><em>Yehia</em></h2>
-          <div class="doctor-creds-list" id="doctor-creds-home">
-            <div class="cred-item"><div class="cred-bullet"></div>Board Certified Aesthetic Medicine Physician</div>
-            <div class="cred-item"><div class="cred-bullet"></div>Diamond Lips Technique Creator</div>
-            <div class="cred-item"><div class="cred-bullet"></div>Advanced Injectable &amp; Filler Specialist</div>
-            <div class="cred-item"><div class="cred-bullet"></div>International Training in Facial Anatomy</div>
-            <div class="cred-item"><div class="cred-bullet"></div>8+ Years Clinical Experience</div>
-          </div>
+    <!-- Clinic Identity Strip -->
+    <section id="doctor-section" style="background:var(--charcoal);padding:80px 60px;">
+      <div style="max-width:900px;margin:0 auto;text-align:center;">
+        <div class="section-label" id="doctor-label-home" style="justify-content:center;margin-bottom:24px;">REJOV CLINIC · SHEIKH ZAYED</div>
+        <h2 class="doctor-name-title" id="doctor-name-home" style="font-size:clamp(36px,4vw,56px);text-align:center;margin-bottom:24px;">A Clinic <em>Founded by Doctors</em></h2>
+        <p style="color:rgba(250,248,245,0.5);font-size:13px;line-height:2;max-width:620px;margin:0 auto 44px;letter-spacing:0.4px;" id="doctor-creds-home">REJOV was built by three aesthetic medicine physicians united by a single philosophy — enhance your natural beauty with precision, artistry, and genuine care. No cookie-cutter results. Only treatments designed for you.</p>
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
           <button class="btn-primary" onclick="openBooking()" id="doctor-cta-home">Book a Consultation</button>
+          <button class="btn-outline" onclick="document.getElementById('our-doctors').scrollIntoView({behavior:'smooth'})">Meet the Team</button>
         </div>
       </div>
     </section>
 
     <!-- Our Doctors Section -->
     <section id="our-doctors">
-      <div class="section-label" id="sec-label-doctors">Our Doctors</div>
+      <div class="section-label" id="sec-label-doctors">Our Medical Team</div>
       <h2 class="section-title" id="sec-title-doctors">Meet the <em>Founders</em></h2>
 
-      <!-- Dr. Muhammed -->
-      <div class="doctor-section-inner doctor-section-alt">
+      <!-- Doctors Grid (all 3 equal) -->
+      <div class="doctors-grid" id="doctors-grid"></div>
+
+      <!-- Dr. Samar -->
+      <div class="doctor-section-inner" style="border-top:1px solid rgba(212,184,150,0.12);margin-top:3px;">
         <div class="doctor-img-col">
-          <img src="dr_muhammed.jpg" alt="Dr. Muhammed Darwish" loading="lazy" decoding="async">
+          <img src="assets/images/dr_samar.jpg" alt="Dr. Samar Yehia" loading="lazy" decoding="async">
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
-          <div class="section-label">Founder</div>
+          <div class="section-label">Co-Founder</div>
+          <h2 class="doctor-name-title">Dr. Samar<br><em>Yehia</em></h2>
+          <div class="doctor-creds-list">
+            <div class="cred-item"><div class="cred-bullet"></div>Board Certified Aesthetic Medicine Physician</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Diamond Lips Technique Creator</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Advanced Injectable &amp; Filler Specialist</div>
+            <div class="cred-item"><div class="cred-bullet"></div>International Training in Facial Anatomy</div>
+            <div class="cred-item"><div class="cred-bullet"></div>8+ Years Clinical Experience</div>
+          </div>
+          <button class="btn-primary" onclick="openBookingWithDoctor('dr-samar')">Book with Dr. Samar</button>
+        </div>
+      </div>
+
+      <!-- Dr. Muhammed -->
+      <div class="doctor-section-inner doctor-section-reverse" style="border-top:1px solid rgba(212,184,150,0.12);">
+        <div class="doctor-img-col">
+          <img src="assets/images/dr_muhammed.jpg" alt="Dr. Muhammed Darwish" loading="lazy" decoding="async">
+          <div class="doctor-img-border"></div>
+        </div>
+        <div class="doctor-info-col">
+          <div class="section-label">Co-Founder</div>
           <h2 class="doctor-name-title">Dr. Muhammed<br><em>Darwish</em></h2>
           <div class="doctor-creds-list">
             <div class="cred-item"><div class="cred-bullet"></div>Aesthetic Medicine Physician</div>
             <div class="cred-item"><div class="cred-bullet"></div>Advanced Injectable &amp; Filler Specialist</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Lip Filler · Natural One Technique</div>
             <div class="cred-item"><div class="cred-bullet"></div>International Training in Facial Anatomy</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Enhanced Cheeks &amp; Under Eye Specialist</div>
           </div>
-          <button class="btn-primary" onclick="openBookingWithDoctor('dr-muhammed')">Book a Consultation</button>
+          <button class="btn-primary" onclick="openBookingWithDoctor('dr-muhammed')">Book with Dr. Muhammed</button>
         </div>
       </div>
 
       <!-- Dr. Noha -->
-      <div class="doctor-section-inner doctor-section-reverse">
+      <div class="doctor-section-inner" style="border-top:1px solid rgba(212,184,150,0.12);">
         <div class="doctor-img-col">
-          <img src="dr_noha.jpg" alt="Dr. Noha Elsoudy" loading="lazy" decoding="async">
+          <img src="assets/images/dr_noha.jpg" alt="Dr. Noha Elsoudy" loading="lazy" decoding="async">
           <div class="doctor-img-border"></div>
         </div>
         <div class="doctor-info-col">
-          <div class="section-label">Founder</div>
+          <div class="section-label">Co-Founder</div>
           <h2 class="doctor-name-title">Dr. Noha<br><em>Elsoudy</em></h2>
           <div class="doctor-creds-list">
             <div class="cred-item"><div class="cred-bullet"></div>Aesthetic Medicine Physician</div>
-            <div class="cred-item"><div class="cred-bullet"></div>Advanced Injectable &amp; Filler Specialist</div>
-            <div class="cred-item"><div class="cred-bullet"></div>International Training in Facial Anatomy</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Lip Filler Specialist · Designed Not Overdone</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Gummy Smile Correction</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Advanced Facial Harmonization</div>
+            <div class="cred-item"><div class="cred-bullet"></div>Rejov Aesthetics · Park Street</div>
           </div>
-          <button class="btn-primary" onclick="openBookingWithDoctor('dr-noha')">Book a Consultation</button>
+          <button class="btn-primary" onclick="openBookingWithDoctor('dr-noha')">Book with Dr. Noha</button>
         </div>
       </div>
     </section>
@@ -1234,20 +1304,20 @@
     <div id="about-strip">
       <div class="strip-item">
         <div class="strip-icon">◇</div>
-        <div class="strip-title" id="strip1-t">Diamond Lips Technique</div>
-        <div class="strip-desc" id="strip1-d">Proprietary lip augmentation method ensuring volume, contour, and projection perfectly balanced with your smile design.</div>
+        <div class="strip-title" id="strip1-t">3 Founding Physicians</div>
+        <div class="strip-desc" id="strip1-d">REJOV was built by three aesthetic medicine specialists, each bringing unique expertise — united by a philosophy of precision, artistry, and natural results.</div>
       </div>
       <div class="strip-divider"></div>
       <div class="strip-item">
         <div class="strip-icon">✦</div>
-        <div class="strip-title" id="strip2-t">Board Certified Physician</div>
-        <div class="strip-desc" id="strip2-d">Internationally trained aesthetic medicine specialist with advanced certification in facial anatomy and injectables.</div>
+        <div class="strip-title" id="strip2-t">Board Certified Physicians</div>
+        <div class="strip-desc" id="strip2-d">Internationally trained aesthetic medicine specialists with advanced certification in facial anatomy, injectables, and fillers.</div>
       </div>
       <div class="strip-divider"></div>
       <div class="strip-item">
         <div class="strip-icon">⬡</div>
-        <div class="strip-title" id="strip3-t">Personalized Treatment</div>
-        <div class="strip-desc" id="strip3-d">Every treatment plan is uniquely crafted to enhance your natural features — no cookie-cutter results.</div>
+        <div class="strip-title" id="strip3-t">Designed, Not Overdone</div>
+        <div class="strip-desc" id="strip3-d">Every treatment plan is uniquely crafted to enhance your natural features — no cookie-cutter results, no overdone looks.</div>
       </div>
     </div>
 
@@ -1341,10 +1411,10 @@
     <div id="about-page">
       <div class="about-hero">
         <div class="about-hero-img">
-          <img src="dr_samar.jpg" alt="Dr. Samar Yehia">
+          <img src="assets/images/dr_samar.jpg" alt="Dr. Samar Yehia">
         </div>
         <div class="about-hero-content">
-          <div class="section-label" style="color:var(--gold)" id="about-label">The Doctor</div>
+          <div class="section-label" style="color:var(--gold)" id="about-label">The Founders</div>
           <h1 class="about-hero-title" id="about-title">Dr. Samar<br><em>Yehia</em></h1>
           <div class="about-creds" id="about-creds">
             <div class="cred-item"><div class="cred-bullet"></div>Board Certified Aesthetic Medicine Physician</div>
@@ -1357,11 +1427,11 @@
         </div>
       </div>
       <div class="about-bio">
-        <div class="section-label" id="about-story-label">Her Story</div>
+        <div class="section-label" id="about-story-label">Our Story</div>
         <div id="about-bio-text">
-          <p>Dr. Samar Yehia is a leading aesthetic medicine physician renowned for her signature Diamond Lips technique — a proprietary approach that ensures every lip augmentation is harmonized with the patient's unique smile architecture.</p>
-          <p>With over eight years of clinical experience and training from leading international institutions, Dr. Samar combines deep anatomical knowledge with an artist's eye to deliver results that look natural, feel beautiful, and last.</p>
-          <p>Her philosophy is simple: enhance, never overpower. Each treatment is a collaboration between doctor and patient — a conversation about confidence, identity, and the version of yourself you've always envisioned.</p>
+          <p>REJOV Clinic was founded by three aesthetic medicine physicians who share a single philosophy: enhance your natural beauty with precision, artistry, and genuine care. No overdone results. No cookie-cutter treatments. Every patient is seen as an individual.</p>
+          <p>Dr. Samar Yehia brings her signature Diamond Lips technique — a proprietary approach that ensures every lip augmentation is harmonized with the patient's unique smile architecture. Dr. Muhammed Darwish is renowned for his Natural One lip filler technique and expert cheek and under-eye treatments. Dr. Noha Elsoudy specializes in facial harmonization with a philosophy of "Designed, Not Overdone."</p>
+          <p>Together, the REJOV founders combine deep anatomical knowledge with an artist's eye to deliver results that look natural, feel beautiful, and last. Every treatment is a collaboration — a conversation about confidence, identity, and the version of yourself you've always envisioned.</p>
         </div>
       </div>
     </div>
@@ -1375,8 +1445,8 @@
   <!-- Login -->
   <div id="admin-login" class="admin-login">
     <div class="login-box">
-      <div class="login-logo">DR. SAMAR</div>
-      <div class="login-sub">Admin Portal</div>
+      <div class="login-logo">REJOV</div>
+      <div class="login-sub">Clinic Admin Portal</div>
       <h2 class="login-title" id="login-title">Sign In</h2>
       <div class="login-error" id="login-error">Invalid credentials. Please try again.</div>
       <div class="form-row">
@@ -1398,8 +1468,8 @@
   <div id="admin-dashboard" class="admin-dashboard" style="display:none">
     <div class="admin-sidebar">
       <div class="sidebar-logo">
-        <div class="sidebar-logo-text">DR. SAMAR</div>
-        <div class="sidebar-logo-sub">Admin Dashboard</div>
+        <div class="sidebar-logo-text">REJOV</div>
+        <div class="sidebar-logo-sub">Clinic Admin Dashboard</div>
       </div>
       <div class="sidebar-nav">
         <div class="sidebar-section">Main</div>
@@ -1661,13 +1731,13 @@
   <div class="footer-grid">
     <div class="footer-brand">
       <div class="footer-logo">REJOV</div>
-      <div class="footer-logo-sub">DUAL EXPERTISE IN AESTHETICS</div>
-      <p class="footer-about" id="footer-about">Premium aesthetic clinic in Sheikh Zayed. Injectables, advanced skin, and beauty treatments by Dr. Samar Yehia.</p>
+      <div class="footer-logo-sub">PREMIUM AESTHETICS · SHEIKH ZAYED</div>
+      <p class="footer-about" id="footer-about">Premium aesthetic clinic in Sheikh Zayed, founded by three physicians. Injectables, advanced skin, and beauty treatments by REJOV's expert team.</p>
     </div>
     <div>
       <div class="footer-col-title" id="footer-nav-title">Navigation</div>
       <a class="footer-link" onclick="showPage('home')" id="footer-home">Home</a>
-      <a class="footer-link" onclick="showPage('about')" id="footer-about-link">About Dr. Samar</a>
+      <a class="footer-link" onclick="showPage('about')" id="footer-about-link">About REJOV</a>
       <a class="footer-link" onclick="showSection('services')" id="footer-services">Services</a>
       <a class="footer-link" onclick="showSection('before-after')" id="footer-ba">Before &amp; After</a>
       <a class="footer-link" onclick="showSection('contact')" id="footer-contact">Contact</a>
@@ -1693,7 +1763,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <div id="footer-copy">© 2025 REJOV by Dr. Samar Yehia. All rights reserved.</div>
+    <div id="footer-copy">© 2025 REJOV Clinic. All rights reserved.</div>
     <a href="admin.html" style="cursor:pointer;opacity:0.4;font-size:10px;letter-spacing:1px;text-decoration:none;color:inherit" id="admin-link">Admin</a>
   </div>
 </footer>
@@ -1730,25 +1800,25 @@ const DOCTORS = [
     id: 'dr-samar',
     name: 'Dr. Samar Yehia',
     nameAr: 'د. سمر يحيى',
-    role: 'Founder · Aesthetic Medicine',
+    role: 'Co-Founder · Aesthetic Medicine',
     roleAr: 'مؤسسة · طب تجميلي',
-    img: 'dr_samar.jpg',
+    img: 'assets/images/dr_samar.jpg',
   },
   {
     id: 'dr-muhammed',
     name: 'Dr. Muhammed Darwish',
     nameAr: 'د. محمد درويش',
-    role: 'Founder · Aesthetic Medicine',
+    role: 'Co-Founder · Aesthetic Medicine',
     roleAr: 'مؤسس · طب تجميلي',
-    img: 'dr_muhammed.jpg',
+    img: 'assets/images/dr_muhammed.jpg',
   },
   {
     id: 'dr-noha',
     name: 'Dr. Noha Elsoudy',
     nameAr: 'د. نهى السودي',
-    role: 'Founder · Aesthetic Medicine',
+    role: 'Co-Founder · Aesthetic Medicine',
     roleAr: 'مؤسسة · طب تجميلي',
-    img: 'dr_noha.jpg',
+    img: 'assets/images/dr_noha.jpg',
   },
 ];
 
@@ -1906,14 +1976,14 @@ const T = {
     'hero-eyebrow': 'INJECTABLES · SKIN · BEAUTY',
     'hero-title': 'The Art of<br><em>Natural Beauty</em>',
     'hero-sub': 'Natural refinement &amp; bold trends',
-    'hero-desc': 'Dual expertise in aesthetics — where precision science meets artistry. Specializing in injectables, advanced skin, and beauty treatments, every result uniquely designed for you.',
-    'hero-cta1': 'Book Consultation', 'hero-cta2': 'Meet Dr. Samar',
-    'doctor-label-home': 'The Doctors', 'doctor-name-home': 'Dr. Samar<br><em>Yehia</em>', 'doctor-cta-home': 'Book a Consultation',
+    'hero-desc': 'A collective of aesthetic medicine founders — where precision science meets artistry. Specializing in injectables, advanced skin, and beauty treatments, every result uniquely designed for you.',
+    'hero-cta1': 'Book Consultation', 'hero-cta2': 'Meet Our Doctors',
+    'doctor-label-home': 'REJOV Clinic · Sheikh Zayed', 'doctor-name-home': 'A Clinic <em>Founded by Doctors</em>', 'doctor-cta-home': 'Book a Consultation',
     'trust1': 'Patients Treated', 'trust2': 'Years Experience', 'trust3': 'Satisfaction Rate',
-    'strip1-t': 'Diamond Lips Technique', 'strip1-d': 'Proprietary lip augmentation method ensuring volume, contour, and projection perfectly balanced with your smile design.',
-    'strip2-t': 'Board Certified Physician', 'strip2-d': 'Internationally trained aesthetic medicine specialist with advanced certification in facial anatomy and injectables.',
-    'strip3-t': 'Personalized Treatment', 'strip3-d': 'Every treatment plan is uniquely crafted to enhance your natural features — no cookie-cutter results.',
-    'sec-label-doctors': 'Our Doctors', 'sec-title-doctors': 'Meet the <em>Founders</em>',
+    'strip1-t': '3 Founding Physicians', 'strip1-d': 'REJOV was built by three aesthetic medicine specialists, each bringing unique expertise — united by a philosophy of precision, artistry, and natural results.',
+    'strip2-t': 'Board Certified Physicians', 'strip2-d': 'Internationally trained aesthetic medicine specialists with advanced certification in facial anatomy, injectables, and fillers.',
+    'strip3-t': 'Designed, Not Overdone', 'strip3-d': 'Every treatment plan is uniquely crafted to enhance your natural features — no cookie-cutter results, no overdone looks.',
+    'sec-label-doctors': 'Our Medical Team', 'sec-title-doctors': 'Meet the <em>Founders</em>',
     'step-tab-0': '0. Doctor',
     'sec-label-services': 'Our Services', 'sec-title-services': 'Treatments<br><em>Crafted for You</em>',
     'sec-label-ba': 'Results Gallery', 'sec-title-ba': 'Before &amp; <em>After</em>',
@@ -1927,14 +1997,13 @@ const T = {
     'cf-submit': 'Send Message',
     'nav-home': 'Home', 'nav-about': 'About', 'nav-doctors': 'Doctors', 'nav-services': 'Services', 'nav-ba': 'Before & After',
     'nav-test': 'Reviews', 'nav-faq': 'FAQ', 'nav-contact': 'Contact', 'nav-book': 'Book Now',
-    'footer-about': 'Premium aesthetic clinic in Sheikh Zayed. Injectables, advanced skin, and beauty treatments by Dr. Samar Yehia.',
+    'footer-about': 'Premium aesthetic clinic in Sheikh Zayed, founded by three physicians. Injectables, advanced skin, and beauty treatments by REJOV\'s expert team.',
     'footer-nav-title': 'Navigation', 'footer-services-title': 'Services', 'footer-contact-title': 'Contact',
-    'footer-copy': '© 2025 REJOV by Dr. Samar Yehia. All rights reserved.',
-    'footer-home': 'Home', 'footer-about-link': 'About Dr. Samar', 'footer-services': 'Services', 'footer-ba': 'Before & After', 'footer-contact': 'Contact',
+    'footer-copy': '© 2025 REJOV Clinic. All rights reserved.',
+    'footer-home': 'Home', 'footer-about-link': 'About REJOV', 'footer-services': 'Services', 'footer-ba': 'Before & After', 'footer-contact': 'Contact',
     'modal-label': 'Appointment Booking', 'modal-title': 'Reserve Your Session',
-    'about-label': 'The Doctor', 'about-title': 'Dr. Samar<br><em>Yehia</em>', 'about-cta': 'Book a Consultation',
-    'about-story-label': 'Her Story',
-    'lang-bar-contact': 'Park St, Sheikh Zayed &nbsp;|&nbsp; 01036363722',
+    'about-label': 'The Founders', 'about-title': 'Dr. Samar<br><em>Yehia</em>', 'about-cta': 'Book a Consultation',
+    'about-story-label': 'Our Story',
     'login-title': 'Sign In', 'login-user-l': 'Username', 'login-pass-l': 'Password', 'login-btn': 'Access Dashboard',
     's1-label': 'Select Treatment', 's2-label': 'Choose Date', 's3-label': 'Available Times',
     's4-name-l': 'Full Name', 's4-phone-l': 'Phone Number', 's4-notes-l': 'Notes (Optional)',
@@ -1952,8 +2021,8 @@ const T = {
     'hero-title': 'فن<br><em>الجمال الطبيعي</em>',
     'hero-sub': 'د. سمر يحيى',
     'hero-desc': 'طب تجميلي دقيق حيث يلتقي العلم بالفن. متخصصة في شفاه الماس، تناسق الوجه، وتجديد شباب البشرة — كل علاج مصمم خصيصاً لكِ.',
-    'hero-cta1': 'احجزي استشارة', 'hero-cta2': 'تعرفي على د. سمر',
-    'doctor-label-home': 'الأطباء', 'doctor-name-home': 'د. سمر<br><em>يحيى</em>', 'doctor-cta-home': 'احجزي استشارة',
+    'hero-cta1': 'احجزي استشارة', 'hero-cta2': 'تعرف على أطبائنا',
+    'doctor-label-home': 'عيادة ريجوف · الشيخ زايد', 'doctor-name-home': 'عيادة <em>أسسها أطباء</em>', 'doctor-cta-home': 'احجزي استشارة',
     'trust1': 'مريضة تمّت معالجتها', 'trust2': 'سنوات خبرة', 'trust3': 'نسبة الرضا',
     'strip1-t': 'تقنية شفاه الماس', 'strip1-d': 'أسلوب خاص لتكبير الشفاه يضمن التوازن الكامل مع تصميم ابتسامتك.',
     'strip2-t': 'طبيبة معتمدة', 'strip2-d': 'أخصائية دولية في طب التجميل بشهادات متقدمة في تشريح الوجه والحقن.',
@@ -1972,10 +2041,10 @@ const T = {
     'cf-submit': 'إرسال الرسالة',
     'nav-home': 'الرئيسية', 'nav-about': 'عن الدكتورة', 'nav-doctors': 'الأطباء', 'nav-services': 'الخدمات', 'nav-ba': 'قبل وبعد',
     'nav-test': 'التقييمات', 'nav-faq': 'الأسئلة', 'nav-contact': 'تواصلي', 'nav-book': 'احجزي الآن',
-    'footer-about': 'طب تجميلي فاخر في الرياض. متخصصة في شفاه الماس وتناسق الوجه وتجديد البشرة.',
+    'footer-about': 'عيادة تجميلية فاخرة في الشيخ زايد، أسسها ثلاثة أطباء. حقن تجميلية وعلاجات متقدمة للبشرة.',
     'footer-nav-title': 'التنقل', 'footer-services-title': 'الخدمات', 'footer-contact-title': 'التواصل',
-    'footer-copy': '© 2025 عيادة د. سمر يحيى التجميلية. جميع الحقوق محفوظة.',
-    'footer-home': 'الرئيسية', 'footer-about-link': 'عن د. سمر', 'footer-services': 'الخدمات', 'footer-ba': 'قبل وبعد', 'footer-contact': 'التواصل',
+    'footer-copy': '© 2025 عيادة ريجوف. جميع الحقوق محفوظة.',
+    'footer-home': 'الرئيسية', 'footer-about-link': 'عن ريجوف', 'footer-services': 'الخدمات', 'footer-ba': 'قبل وبعد', 'footer-contact': 'التواصل',
     'modal-label': 'حجز موعد', 'modal-title': 'احجزي جلستك',
     'about-label': 'الطبيبة', 'about-title': 'د. سمر<br><em>يحيى</em>', 'about-cta': 'احجزي استشارة',
     'about-story-label': 'قصتها',
@@ -2016,15 +2085,15 @@ function setLang(lang) {
   if (bioEl) {
     if (lang === 'ar') {
       bioEl.innerHTML = `
-        <p>د. سمر يحيى طبيبة متخصصة رائدة في طب التجميل، اشتُهرت بتقنية شفاه الماس المميزة — وهي نهج خاص يضمن أن كل عملية تكبير شفاه متناسقة مع هندسة ابتسامة المريضة الفريدة.</p>
-        <p>بخبرة سريرية تمتد لأكثر من ثماني سنوات وتدريب في مؤسسات دولية رائدة، تجمع د. سمر بين المعرفة التشريحية العميقة وعين الفنانة لتقديم نتائج تبدو طبيعية وتشعرين بجمالها وتدوم طويلاً.</p>
-        <p>فلسفتها بسيطة: التعزيز لا الإفراط. كل علاج هو تعاون بين الطبيبة والمريضة — حوار حول الثقة بالنفس والهوية والنسخة من نفسك التي طالما تصورتِها.</p>
+        <p>عيادة ريجوف تأسست على يد ثلاثة أطباء في طب التجميل يجمعهم فلسفة واحدة: إبراز جمالك الطبيعي بدقة وفن واهتمام حقيقي. لا نتائج مبالغ فيها، لا علاجات نمطية. كل مريض يُعامل كفرد.</p>
+        <p>د. سمر يحيى تتميز بتقنية شفاه الماس الخاصة بها. د. محمد درويش معروف بتقنية Lip Filler Natural One وعلاجات الخدود وتحت العيون. د. نهى السودي متخصصة في تناسق الوجه بفلسفة "مصمم، لا مبالغ فيه".</p>
+        <p>معاً، يجمع مؤسسو ريجوف بين المعرفة التشريحية العميقة وعين الفنان لتقديم نتائج تبدو طبيعية وتشعرين بجمالها وتدوم طويلاً.</p>
       `;
     } else {
       bioEl.innerHTML = `
-        <p>Dr. Samar Yehia is a leading aesthetic medicine physician renowned for her signature Diamond Lips technique — a proprietary approach that ensures every lip augmentation is harmonized with the patient's unique smile architecture.</p>
-        <p>With over eight years of clinical experience and training from leading international institutions, Dr. Samar combines deep anatomical knowledge with an artist's eye to deliver results that look natural, feel beautiful, and last.</p>
-        <p>Her philosophy is simple: enhance, never overpower. Each treatment is a collaboration between doctor and patient — a conversation about confidence, identity, and the version of yourself you've always envisioned.</p>
+        <p>REJOV Clinic was founded by three aesthetic medicine physicians who share a single philosophy: enhance your natural beauty with precision, artistry, and genuine care. No overdone results. No cookie-cutter treatments. Every patient is seen as an individual.</p>
+        <p>Dr. Samar Yehia brings her signature Diamond Lips technique. Dr. Muhammed Darwish is renowned for his Natural One lip filler technique and expert cheek and under-eye treatments. Dr. Noha Elsoudy specializes in facial harmonization with a philosophy of "Designed, Not Overdone."</p>
+        <p>Together, the REJOV founders combine deep anatomical knowledge with an artist's eye to deliver results that look natural, feel beautiful, and last.</p>
       `;
     }
   }
@@ -2071,39 +2140,31 @@ function renderServices() {
 function renderBeforeAfter() {
   const g = document.getElementById('ba-grid');
   if (!g) return;
-  const imgs = [
-    { before: 'IMG_2386.jpeg', after: 'IMG_2389.jpeg', tag: 'Diamond Lips', title: currentLang==='ar'?'شفاه الماس':'Diamond Lips', main: true },
-    { before: 'IMG_2387.jpeg', after: 'IMG_2388.jpeg', tag: 'Diamond Lips', title: currentLang==='ar'?'تكبير الشفاه':'Lip Enhancement', main: false },
-    { before: 'IMG_2388.jpeg', after: 'IMG_2389.jpeg', tag: 'Diamond Lips', title: currentLang==='ar'?'تصميم الشفاه':'Lip Design', main: false },
+
+  // Premium gallery items from all doctors
+  const items = [
+    { img: 'assets/images/ba_mahmoud_1.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه · طبيعي':'Lip Filler · Natural One', badge: 'Before & After', wide: false },
+    { img: 'assets/images/ba_mahmoud_2.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه · طبيعي':'Lip Filler · Natural One', badge: 'Before & After', wide: false },
+    { img: 'assets/images/ba_noha_1.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'تصميم الشفاه':'Designed Lips', badge: 'Before & After', wide: false },
+    { img: 'assets/images/ba_mahmoud_3.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تحسين الخدود وتحت العين':'Cheeks & Under Eye', badge: 'Before & After', wide: true },
+    { img: 'assets/images/ba_noha_2.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'ابتسامة لثوية':'Gummy Smile', badge: 'Before & After', wide: false },
+    { img: 'assets/images/ba_noha_3.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Enhancement', badge: 'Before & After', wide: false },
+    { img: 'assets/images/ba_mahmoud_4.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'تصميم الشفاه':'Lip Design', badge: 'Before & After', wide: false },
+    { img: 'assets/images/ba_noha_4.jpg', doctor: 'Dr. Noha Elsoudy', treatment: currentLang==='ar'?'منشطات البشرة':'Skin Boosters', badge: 'After', wide: false },
+    { img: 'assets/images/ba_mahmoud_5.jpg', doctor: 'Dr. Muhammed Darwish', treatment: currentLang==='ar'?'حقن الشفاه':'Lip Filler', badge: 'Before & After', wide: false },
   ];
-  const beforeLabel = currentLang==='ar'?'قبل':'Before';
-  const afterLabel  = currentLang==='ar'?'بعد':'After';
 
-  // Replace grid with layout container
-  g.className = 'ba-layout';
-
-  g.innerHTML = imgs.map((img, idx) => `
-    <div class="ba-card ${img.main ? 'ba-main' : 'ba-secondary'}">
-      <div class="ba-slider-wrap" id="ba-slider-${idx}" data-pct="50">
-        <img src="${img.after}"  alt="${img.title} after"  class="ba-img ba-img-after loaded">
-        <img src="${img.before}" alt="${img.title} before" class="ba-img ba-img-before loaded">
-        <div class="ba-slider-handle" id="ba-handle-${idx}">
-        </div>
-        <div class="ba-slider-arrows">◀ ▶</div>
-        <div class="ba-label-pill before">${beforeLabel}</div>
-        <div class="ba-label-pill after">${afterLabel}</div>
-      </div>
-      <div class="ba-overlay" style="pointer-events:none">
-        <div class="ba-tag">${img.tag}</div>
-        <div class="ba-title">${img.title}</div>
+  g.className = 'ba-gallery';
+  g.innerHTML = items.map(item => `
+    <div class="ba-gallery-item${item.wide ? ' wide' : ''}">
+      <img src="${item.img}" alt="${item.treatment}" loading="lazy" decoding="async">
+      <div class="ba-gallery-badge">${item.badge}</div>
+      <div class="ba-gallery-caption">
+        <div class="ba-gallery-doctor">${item.doctor}</div>
+        <div class="ba-gallery-treatment">${item.treatment}</div>
       </div>
     </div>
   `).join('');
-
-  // Attach drag logic to each slider
-  document.querySelectorAll('.ba-slider-wrap').forEach(wrap => {
-    initBASlider(wrap);
-  });
 }
 
 function renderTestimonials() {
