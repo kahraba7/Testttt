@@ -1826,6 +1826,7 @@ const DOCTORS = [
     role: 'Aesthetic Medicine · Founder',
     roleAr: 'طب تجميلي · المؤسسة',
     img: 'dr_samar.jpg',
+    founder: true,
   },
   {
     id: 'dr-mahmoud',
@@ -1834,6 +1835,7 @@ const DOCTORS = [
     role: 'Aesthetic Medicine · Founder',
     roleAr: 'طب تجميلي · المؤسس',
     img: 'dr_muhammed.jpg',
+    founder: true,
   },
   {
     id: 'dr-noha',
@@ -1842,6 +1844,7 @@ const DOCTORS = [
     role: 'Aesthetic Medicine · Founder',
     roleAr: 'طب تجميلي · المؤسسة',
     img: 'dr_noha.jpg',
+    founder: true,
   },
   {
     id: 'dr-omar',
@@ -1866,7 +1869,7 @@ const DOCTORS = [
 function renderDoctorsGrid() {
   const g = document.getElementById('doctors-grid');
   if (!g) return;
-  g.innerHTML = DOCTORS.map(d => `
+  g.innerHTML = DOCTORS.filter(d => !d.founder).map(d => `
     <div class="doctor-card">
       <div class="doctor-card-img-wrap">
         ${d.logoCard
